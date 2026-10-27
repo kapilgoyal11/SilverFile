@@ -5,9 +5,11 @@ This is for building, testing and demoing the Intake + Memory part before the
 full graph exists. In the team graph (src/graph.py, owned by David), reuse:
 
     from src.agents.intake import intake_node, route_after_intake
-    builder.add_node("intake", intake_node)
-    builder.add_conditional_edges("intake", route_after_intake,
-        {"intake": "intake", "human_review": "human_review", "done": "orchestrator"})
+    builder.add_node("intake_agent", intake_node)
+    builder.add_conditional_edges("intake_agent", route_after_intake,
+        {"intake": "intake_agent", "human_review": "human_review", "done": "orchestrator_agent"})
+
+(Node names don't match state field names, per the team checklist.)
 
 `human_review_node` below is a PLACEHOLDER so the escalation path can be
 demoed end to end. The real HITL node belongs to Guardrails / Orchestrator.
@@ -36,10 +38,10 @@ def human_review_node(state: dict) -> dict:
 
 def build_intake_graph(checkpointer=None):
     b = StateGraph(SilverFileState)
-    b.add_node("intake", intake_node)
+    b.add_node("intake_agent", intake_node)
     b.add_node("human_review", human_review_node)
-    b.add_edge(START, "intake")
-    b.add_conditional_edges("intake", route_after_intake,
-                            {"intake": "intake", "human_review": "human_review", "done": END})
-    b.add_edge("human_review", "intake")
+    b.add_edge(START, "intake_agent")
+    b.add_conditional_edges("intake_agent", route_after_intake,
+                            {"intake": "intake_agent", "human_review": "human_review", "done": END})
+    b.add_edge("human_review", "intake_agent")
     return b.compile(checkpointer=checkpointer or get_checkpointer(":memory:"))

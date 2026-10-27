@@ -41,7 +41,7 @@ LONG_SESSION = [
     "Actually, I made a mistake. My birthday is March 5, 1950",
     "yes", "what is a 1099-R", "yes", "1", "no", "yes", "yes",
     "Can I deduct my medications?", "no", "no",
-    "yes", "about 1200", "no", "no", "no", "my date of birth", "March 4, 1950", "yes",
+    "yes", "about 1200", "no", "no", "no", "no", "my date of birth", "March 4, 1950", "yes",
 ]
 
 

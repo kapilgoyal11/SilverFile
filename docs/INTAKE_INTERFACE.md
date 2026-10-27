@@ -6,9 +6,9 @@ Owner: Karan. Ask before renaming any of these.
 
 ```python
 from src.agents.intake import intake_node, route_after_intake
-builder.add_node("intake", intake_node)
-builder.add_conditional_edges("intake", route_after_intake,
-    {"intake": "intake", "human_review": "human_review", "done": "orchestrator"})
+builder.add_node("intake_agent", intake_node)
+builder.add_conditional_edges("intake_agent", route_after_intake,
+    {"intake": "intake_agent", "human_review": "human_review", "done": "orchestrator_agent"})
 ```
 
 - Intake asks **one question each time the node runs**, using `interrupt()`.
@@ -38,9 +38,12 @@ builder.add_conditional_edges("intake", route_after_intake,
 | `estimated_payments` | int | Line 26 |
 | `adjustments_10` | int | Line 10 (Schedule 1, line 26) |
 | `adjustments_ss_worksheet` | int | Schedule 1 lines 11–20, 23, 25. Asked only when there are adjustments **and** an SSA-1099 |
-| `schedule_2_line_3`, `other_taxes_23`, `credits_21`, `other_payments_32` | int | From Schedule 2 line 3, Schedule 2 line 21, Schedule 3 line 8, and Schedule 3 line 15. **Kapil, please check this mapping.** |
+| `other_income_8`, `schedule_2_line_3`, `other_taxes_23`, `credits_21`, `other_payments_32` | int | From Schedule 1 line 10, Schedule 2 line 3, Schedule 2 line 21, Schedule 3 line 8, and Schedule 3 line 15. **Kapil, please check this mapping.** |
+| `other_withholding_25c` | int | Federal tax withheld on forms other than W-2 and 1099 (e.g. W-2G) |
 | `unsure` | list of question names | The user said "not sure" to these. Each has a `user_unsure` escalation. |
 | `volunteer_questions` | list of str | Advice questions noted for the human preparer |
+
+All nine optional amounts on Kapil's checklist are covered.
 
 **Dollar keys follow one rule:**
 

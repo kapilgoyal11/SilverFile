@@ -3,7 +3,7 @@
 Agent measured: **Intake** (the model-calling agent with the longest conversation).
 Strategy: **selective recall** = fixed system prompt + a code-generated summary of decisions so far + only the last 4 turns (long ones clipped) + the current question. Disabled = the whole transcript is sent every turn.
 
-Session: one scripted intake of 53 turns (`scripts/measure_context.py`, `LONG_SESSION`): four dependents, jargon questions, a tax-advice question, a correction, off-topic drift, and a change at the confirmation step.
+Session: one scripted intake of 54 turns (`scripts/measure_context.py`, `LONG_SESSION`): four dependents, jargon questions, a tax-advice question, a correction, off-topic drift, and a change at the confirmation step.
 
 Token counts: `tiktoken` (cl100k encoding on the exact messages the agent sends; rerun with `--live` for provider-reported counts).
 
@@ -17,11 +17,11 @@ python -m scripts.measure_context --both
 | | Strategy OFF | Strategy ON |
 |---|---:|---:|
 | First turn | 107 | 143 |
-| Last turn | 2523 | 547 |
-| Max | 2523 | 612 |
-| Mean | 986 | 242 |
-| Total over session | 52260 | 12841 |
-| Growth per turn (last minus first, over turns) | 46.5 | 7.8 |
+| Last turn | 2602 | 560 |
+| Max | 2602 | 599 |
+| Mean | 1007 | 244 |
+| Total over session | 54392 | 13160 |
+| Growth per turn (last minus first, over turns) | 47.1 | 7.9 |
 
 With the strategy off, every turn re-sends the whole conversation, so cost grows in a straight line. With it on, the window of recent turns is fixed and the decisions summary is bounded, so the cost per turn stays roughly constant however long the session runs. Nothing is lost: the full answers live in the state's answer ledger, not in the prompt.
 
@@ -79,8 +79,9 @@ The two small bumps near the end of the ON curve are the confirmation step: ther
 | 46 | `made_estimated_payments` | 1619 | 320 |
 | 47 | `estimated_payments_total` | 1645 | 267 |
 | 48 | `has_adjustments` | 1721 | 291 |
-| 49 | `has_other_schedules` | 1789 | 311 |
-| 50 | `confirm_all` | 2116 | 612 |
-| 51 | `change_what` | 2155 | 326 |
-| 52 | `taxpayer_dob` | 2174 | 277 |
-| 53 | `confirm_all` | 2523 | 547 |
+| 49 | `has_other_schedules` | 1802 | 324 |
+| 50 | `has_other_withholding` | 1842 | 335 |
+| 51 | `confirm_all` | 2182 | 599 |
+| 52 | `change_what` | 2221 | 297 |
+| 53 | `taxpayer_dob` | 2240 | 277 |
+| 54 | `confirm_all` | 2602 | 560 |

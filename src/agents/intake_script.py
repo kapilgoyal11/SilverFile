@@ -31,7 +31,7 @@ GLOSSARY: dict[str, str] = {
     "1099-DIV": "A 1099-DIV shows dividends, which are payments from stocks or funds you own.",
     "itemize": "Itemizing means listing expenses one by one instead of taking the standard amount everyone gets.",
     "power of attorney": "A power of attorney is a legal document that lets someone act on another person's behalf.",
-    "schedule 2 or 3": "Schedules 2 and 3 are extra pages of the tax return for additional taxes, credits, and payments. If you have them, they're usually from a preparer or last year's software.",
+    "schedule 2 or 3": "Schedules 1, 2, and 3 are extra pages of the tax return for additional income, taxes, credits, and payments. If you have them, they're usually from a preparer or tax software.",
 }
 
 # Values are the team's shared filing-status strings.
@@ -173,8 +173,16 @@ BASE_SLOTS: dict[str, Slot] = {s.key: s for s in [
          "On Schedule 1, what is the total of lines 11 through 20, plus lines 23 and 25, in whole dollars?",
          "Schedule 1 lines 11-20, 23 and 25", keywords=["lines 11 through 20"]),
     Slot("has_other_schedules", "yes_no",
-         "Do you have a Schedule 2 or Schedule 3 that has already been filled in?",
-         "Has Schedule 2 or 3", terms=["schedule 2 or 3"], keywords=["schedule 2", "schedule 3"]),
+         "Apart from line 26 of Schedule 1, do you have any other amounts on Schedule 1, 2, or 3 that have already been filled in?",
+         "Has other Schedule 1, 2 or 3 amounts", terms=["schedule 2 or 3"], keywords=["schedule 2", "schedule 3"]),
+    Slot("schedule_1_line_10", "money", "What is the amount on Schedule 1, line 10, in whole dollars?",
+         "Schedule 1, line 10", keywords=["schedule 1, line 10"]),
+    Slot("has_other_withholding", "yes_no",
+         "Apart from your W-2 and 1099 forms, did any other form show federal income tax withheld, such as a W-2G from gambling winnings?",
+         "Other federal tax withheld", keywords=["w-2g", "other withholding"]),
+    Slot("other_withholding_total", "money",
+         "What is the total federal income tax withheld on those other forms, in whole dollars?",
+         "Other withholding total", keywords=["withheld on those"]),
     Slot("schedule_2_line_3", "money", "What is the amount on Schedule 2, line 3, in whole dollars?",
          "Schedule 2, line 3", keywords=["schedule 2, line 3"]),
     Slot("schedule_2_line_21", "money", "What is the amount on Schedule 2, line 21, in whole dollars?",
@@ -283,6 +291,10 @@ def build_plan(a: dict[str, Any]) -> list[str]:
             p.append("adjustments_ss_worksheet")
     p.append("has_other_schedules")
     if a.get("has_other_schedules") is True:
-        p += ["schedule_2_line_3", "schedule_2_line_21", "schedule_3_line_8", "schedule_3_line_15"]
+        p += ["schedule_1_line_10", "schedule_2_line_3", "schedule_2_line_21",
+              "schedule_3_line_8", "schedule_3_line_15"]
+    p.append("has_other_withholding")
+    if a.get("has_other_withholding") is True:
+        p.append("other_withholding_total")
     p.append("confirm_all")
     return p

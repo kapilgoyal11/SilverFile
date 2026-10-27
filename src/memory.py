@@ -149,13 +149,17 @@ def intake_handoff(state: dict) -> dict:
         if asked("adjustments_ss_worksheet"):
             out["adjustments_ss_worksheet"] = val("adjustments_ss_worksheet")
     if asked("has_other_schedules"):
-        sched = {"schedule_2_line_3": "schedule_2_line_3",   # 1040-SR line 17
+        sched = {"other_income_8": "schedule_1_line_10",      # 1040-SR line 8
+                 "schedule_2_line_3": "schedule_2_line_3",   # line 17
                  "other_taxes_23": "schedule_2_line_21",      # line 23
                  "credits_21": "schedule_3_line_8",           # line 20 (no line 19 credits in scope)
                  "other_payments_32": "schedule_3_line_15"}   # line 31
         for key, slot in sched.items():
             out[key] = val(slot) if val("has_other_schedules") else (
                 0 if val("has_other_schedules") is False else None)
+    if asked("has_other_withholding"):
+        out["other_withholding_25c"] = val("other_withholding_total") if val("has_other_withholding") else (
+            0 if val("has_other_withholding") is False else None)
     return out
 
 

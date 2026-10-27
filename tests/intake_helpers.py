@@ -10,7 +10,8 @@ CLEAN_RUN = [
     "yes", "Emma Lee", "granddaughter", "901-23-4567", "no",
     "yes", "1", "yes", "yes", "1", "no", "yes", "no", "no", "no",
     "yes", "$1,200", "no",
-    "no",   # Schedule 2 or 3
+    "no",   # other Schedule 1, 2 or 3 amounts
+    "no",   # other withholding (e.g. W-2G)
     "yes",  # confirm
 ]
 

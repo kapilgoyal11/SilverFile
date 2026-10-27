@@ -20,6 +20,10 @@ def test_clean_run_completes_with_expected_handoff():
     assert h["estimated_payments"] == 1200          # whole-dollar int
     assert h["adjustments_10"] == 0                 # user said no adjustments
     assert h["schedule_2_line_3"] == 0 and h["credits_21"] == 0
+    # every optional amount on the team checklist is present
+    for key in ("estimated_payments", "adjustments_10", "other_income_8", "schedule_2_line_3", "credits_21",
+                "other_taxes_23", "other_withholding_25c", "other_payments_32"):
+        assert isinstance(h[key], int), key
     assert h["entered_by"] == "taxpayer"
     # provenance on every user answer
     for slot, rec in st["answers"].items():
@@ -64,6 +68,14 @@ def test_mfs_asks_lived_apart_and_cents_are_not_rounded_by_intake():
     assert "round to the nearest dollar" in s.last["text"]
     s.say("1,235")
     assert s.state["answers"]["estimated_payments_total"]["value"] == 1235
+
+
+def test_schedule_amounts_reach_the_handoff():
+    run = CLEAN_RUN[:-3] + ["yes", "100", "0", "50", "200", "0", "yes", "75", "yes"]
+    s = Session().say_all(run)
+    h = s.state["intake"]
+    assert (h["other_income_8"], h["schedule_2_line_3"], h["other_taxes_23"], h["credits_21"],
+            h["other_payments_32"], h["other_withholding_25c"]) == (100, 0, 50, 200, 0, 75)
 
 
 def test_one_question_at_a_time():
