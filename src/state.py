@@ -94,8 +94,19 @@ class SilverFileState(TypedDict, total=False):
     # The provenance record is the single source of truth for every amount.
     provenance: Annotated[dict, merge_dicts]
 
-    # --- Review / Audit writes ---
-    # Each finding: {"line": "6b", "problem": "...", "send_back_to": "computation"}
+    # --- Review / Audit writes (via src/tools/audit_adapter.run_review_audit) ---
+    # LangGraph silently drops any key a node returns that is not declared here,
+    # so these must be listed or the audit record never reaches the state.
+    # Shape: docs/review_audit_contract.md section 4.
+    audit: dict                                      # latest audit record: verdict, findings, send_back_to, ...
+    audit_history: Annotated[list, operator.add]     # one entry per review round
+    review_round: int                                # rounds run so far (Review bounds this at MAX_REVIEW_ROUNDS)
+    needs_human_review: bool
+    # Dashboard / human_review appends {finding_key, decision, resolved_by, resolved_at};
+    # Review treats a finding with a resolution as resolved_by_human and stops blocking on it.
+    hitl_resolutions: Annotated[list, operator.add]
+    intake_flags: Annotated[dict, merge_dicts]       # optional flags Review reads (contract section 3)
+    # Kept for compatibility with earlier drafts; the audit record above is the source of truth.
     review_findings: list
     review_iterations: int
 
@@ -106,7 +117,13 @@ class SilverFileState(TypedDict, total=False):
     # (True = stop the conversation now), "slot" (which intake question).
     escalations: Annotated[list, merge_escalations]
 
-    # --- Orchestrator (David) writes ---
+    # --- Orchestrator (David) writes --- see src/agents/orchestrator.py
     next_agent: str
     status: str  # in_progress | needs_human | draft_ready | failed
-    handoff_log: Annotated[list, operator.add]  # for the loop guard
+    # Every hop, appended by whoever makes it. The orchestrator's own entries are
+    # {"from": "orchestrator", "to": "<node>", "at": "<iso time>"}; the loop guard
+    # reads only those. Other agents may append entries of their own shape.
+    handoff_log: Annotated[list, operator.add]
+    dispatched_round: int        # last review round whose send-back has been dispatched to its owner
+    recheck_eligibility: bool    # set by human_review; cleared when eligibility re-runs
+    release_gate: dict           # {"passed": bool, "violations": [...]} from the final gate
