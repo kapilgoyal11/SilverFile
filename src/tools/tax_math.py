@@ -339,3 +339,9 @@ def refund_or_amount_owed(total_tax_24: int, total_payments_33: int) -> dict:
         "37": computed("37", max(total_tax_24 - total_payments_33, 0), "max(0, 24 - 33)",
                        dict(inputs), "refund_or_amount_owed"),
     }
+
+
+
+
+# Public name for the shared "sum these parts and keep a provenance record" helper.
+sum_record = _sum_record
