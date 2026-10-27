@@ -53,7 +53,9 @@ Tax year: 2025.
   agent only states which row/rate applies.
 - **R4.1** The taxpayer can be claimed as a dependent by someone else → escalate.
 - **R4.2** Filing MFS and the spouse itemizes deductions → escalate.
-- **R4.3** The taxpayer was a dual-status alien → escalate.
+- **R4.3** The taxpayer was a dual-status alien → escalate. Intake asks
+  whether the taxpayer lived in the US all year; "no" is treated as possible
+  dual status and escalated.
 
 ## R5 — Schedules
 
@@ -87,6 +89,9 @@ Tax year: 2025.
   Tax Worksheet, which is not implemented in the team's tax_math tools, so the
   Computation agent cannot compute line 16. (Source: team scope decision,
   SilverFile team checklist; IRS Form 1040 instructions, line 16.)
+- **R6.11** The taxpayer reports income from any source other than W-2,
+  SSA-1099, 1099-R, 1099-INT or 1099-DIV, and it does not match R6.2–R6.8
+  → escalate (anything not in the §3.3 in-scope list is out of scope).
 
 ## R7 — Conflicts between the user and documents
 
@@ -126,3 +131,9 @@ Tax year: 2025.
 - **R11.3** No non-test SSN appears anywhere in the draft.
 - **R11.4** No user-facing system message contains advice language.
 - **R11.5** Nothing is ever filed; the output is a draft for human review.
+
+## R12 — Missing or unsure answers
+
+- **R12.1** If an answer a rule depends on is missing, Intake asks again. If the
+  taxpayer said "I'm not sure", the rule cannot be decided and a volunteer must
+  confirm the fact. The escalation cites the rule that needed the answer.

@@ -1,13 +1,35 @@
 {
   "intake": {
-    "filing_status": "mfj",
+    "entered_by": "taxpayer",
+    "taxpayer_name": "Test Taxpayer",
     "birth_date": "1950-06-01",
+    "is_blind": false,
+    "claimable_as_dependent": false,
+    "full_year_resident": true,
+    "married_end_of_year": false,
+    "spouse_died_recent": true,
+    "spouse_death_year": 2025,
+    "filing_status": "mfj",
+    "spouse_name": "Sam Test",
     "spouse_birth_date": "1949-11-11",
-    "spouse_date_of_death": "2025-05-03",
-    "document_inventory": [
-      "SSA-1099"
-    ],
-    "answered_by_taxpayer": true
+    "spouse_is_blind": false,
+    "spouse_itemizes": null,
+    "lived_apart_all_year": null,
+    "dependents": [],
+    "document_inventory": {
+      "W-2": 0,
+      "SSA-1099": 1,
+      "1099-R": 0,
+      "1099-INT": 0,
+      "1099-DIV": 0
+    },
+    "box2b_checked": null,
+    "other_income": false,
+    "other_income_detail": null,
+    "wants_itemize": false,
+    "unsure": [],
+    "volunteer_questions": [],
+    "estimated_payments": 0
   },
   "documents": [
     {

@@ -7,8 +7,8 @@ graph exists. It uses the team's state conventions (src/state.py):
                                       └→ supervisor      (loop guard tripped)
 
 * human_review owns the LangGraph interrupt().
-* Resolving = appending a copy of the escalation with "resolved": True
-  (state["escalations"] is append-only).
+* Resolving = sending a copy of the escalation with the same "id" and
+  "resolved": True; Karan's merge_escalations reducer replaces it in place.
 * Loop guard counts human_review entries in handoff_log.
 
 When combining: keep eligibility_agent; give this routing / human_review
@@ -35,13 +35,27 @@ def merge_dicts(left: Optional[dict], right: Optional[dict]) -> dict:   # same a
     return merged
 
 
+def merge_escalations(left: Optional[list], right: Optional[list]) -> list:  # same as team state.py
+    """Append, except an entry whose "id" matches an existing one replaces it."""
+    out = list(left or [])
+    index = {e["id"]: i for i, e in enumerate(out) if isinstance(e, dict) and "id" in e}
+    for e in right or []:
+        if isinstance(e, dict) and "id" in e and e["id"] in index:
+            out[index[e["id"]]] = e
+        else:
+            if isinstance(e, dict) and "id" in e:
+                index[e["id"]] = len(out)
+            out.append(e)
+    return out
+
+
 class State(TypedDict, total=False):
     """Subset of the team's SilverFileState (+ transcript)."""
     intake: Annotated[dict, merge_dicts]
     documents: Annotated[list, operator.add]
-    transcript: list
+    transcript: Annotated[list, operator.add]
     eligibility: Annotated[dict, merge_dicts]
-    escalations: Annotated[list, operator.add]
+    escalations: Annotated[list, merge_escalations]
     handoff_log: Annotated[list, operator.add]
     next_agent: str
     status: str

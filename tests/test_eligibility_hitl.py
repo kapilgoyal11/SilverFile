@@ -46,9 +46,11 @@ def test_resolve_all():
     g = build_graph()
     cfg = {"configurable": {"thread_id": "exploit"}}
     out = g.invoke(load("hitl_exploitation.json"), cfg)
-    assert len(out["__interrupt__"][0].value["escalations"]) == 3
+    assert len(out["__interrupt__"][0].value["escalations"]) == 1
     out = g.invoke(Command(resume={"reviewer": "t", "resolve_all": True}), cfg)
     assert "__interrupt__" not in out
+    # merge_escalations replaced the entry in place (same id), it did not add a copy
+    assert len(out["escalations"]) == 1 and out["escalations"][0]["resolved"] is True
 
 
 def test_loop_guard_breaks_pathological_cycle():

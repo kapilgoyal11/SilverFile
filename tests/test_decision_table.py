@@ -233,3 +233,67 @@ def test_team_flat_intake_matches_nested():
 
 def test_flat_intake_without_spouse_has_no_spouse():
     assert IntakeData.model_validate({"filing_status": "single", "birth_date": OLD}).spouse is None
+
+
+# ----------------------------------------------------------------- Intake's (Karan's) keys
+def karan(**kw):
+    base = {"birth_date": OLD, "is_blind": False, "claimable_as_dependent": False,
+            "full_year_resident": True, "filing_status": "single", "dependents": [],
+            "document_inventory": {"W-2": 0, "SSA-1099": 1, "1099-R": 0, "1099-INT": 0, "1099-DIV": 0},
+            "box2b_checked": None, "other_income": False, "wants_itemize": False, "unsure": []}
+    base.update(kw)
+    return IntakeData.model_validate(base)
+
+
+@pytest.mark.parametrize("kw, code, rule", [
+    (dict(claimable_as_dependent=True), "STD_DEDUCTION_CHART_NA", "R4.1"),
+    (dict(full_year_resident=False), "STD_DEDUCTION_CHART_NA", "R4.3"),
+    (dict(filing_status="mfj", spouse_birth_date=OLD, spouse_died_recent=True, spouse_death_year=2025),
+     "FILING_STATUS_AMBIGUOUS", "R2.3"),
+    (dict(wants_itemize=True), "OUT_OF_SCOPE", "R6.2"),
+    (dict(box2b_checked=True), "UNDETERMINED_TAXABLE_1099R", "R6.9"),
+    (dict(other_income=True, other_income_detail="I rent out my basement"), "OUT_OF_SCOPE", "R6.4"),
+    (dict(other_income=True, other_income_detail="a bit of bitcoin"), "OUT_OF_SCOPE", "R6.6"),
+    (dict(other_income=True, other_income_detail="gambling winnings"), "OUT_OF_SCOPE", "R6.11"),
+    (dict(birth_date=None, unsure=["taxpayer_dob"]), "MISSING_INFO", "R1.1"),
+    (dict(is_blind=None, unsure=["taxpayer_blind"]), "MISSING_INFO", "R3.1"),
+    (dict(filing_status="mfj", spouse_birth_date=None, unsure=["spouse_dob"]), "MISSING_INFO", "R3.1"),
+])
+def test_karan_intake_escalations(kw, code, rule):
+    assert (code, rule) in codes(run_rules(karan(**kw), []))
+
+
+def test_karan_clean_mfj():
+    r = run_rules(karan(filing_status="mfj", spouse_birth_date=OLD, spouse_is_blind=True), [])
+    assert not r.escalations and r.boxes_checked == 3 and r.senior_spouse
+
+
+def test_karan_document_inventory_dict():
+    i = karan(document_inventory={"W-2": 2, "SSA-1099": 0, "1099-R": None, "1099-INT": 0, "1099-DIV": 1})
+    assert i.documents_reported == ["W-2", "1099-R", "1099-DIV"]
+
+
+@pytest.mark.parametrize("raw, expected", [
+    ("1950-03-05", date(1950, 3, 5)), ("03/05/1950", date(1950, 3, 5)),
+    ("March 5, 1950", date(1950, 3, 5)), ("not a date", None), (None, None),
+])
+def test_birth_date_formats(raw, expected):
+    assert karan(birth_date=raw).taxpayer.dob == expected
+
+
+def test_qss_with_child_dependent_is_valid():
+    r = run_rules(karan(filing_status="qss", spouse_died_recent=True, spouse_death_year=2024,
+                        dependents=[{"name": "Sam", "relationship": "son", "ssn": "901-23-4567"}]), [])
+    assert r.filing_status_valid and not r.escalations
+
+
+def test_hoh_with_dependent_is_valid():
+    r = run_rules(karan(filing_status="hoh",
+                        dependents=[{"name": "Ann", "relationship": "mother", "ssn": None}]), [])
+    assert r.filing_status_valid
+
+
+def test_box2b_not_double_flagged_when_document_also_flags_it():
+    d = Document(doc_id="r_2", doc_type="1099-R", fields={"box_2b_taxable_not_determined": True})
+    r = run_rules(karan(box2b_checked=True), [d])
+    assert sum(e.rule_id == "R6.9" for e in r.escalations) == 1

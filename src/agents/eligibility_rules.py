@@ -55,6 +55,28 @@ def _positive(v) -> bool:
         return True      # unreadable amount: let a human look (fail safe)
 
 
+def _spouse_death_year(intake: IntakeData) -> int | None:
+    sp = intake.spouse
+    if sp and sp.date_of_death:
+        return sp.date_of_death.year
+    return intake.spouse_death_year
+
+
+def _missing(intake: IntakeData, out: EligibilityResult, slot: str, rule_id: str,
+             what: str, source: str) -> None:
+    """Missing answer: ask again, unless the taxpayer already said 'not sure'
+    (then a volunteer has to confirm it; asking again would just loop)."""
+    if slot in intake.unsure_slots:
+        out.escalations.append(_esc(
+            "MISSING_INFO", rule_id,
+            f"The taxpayer wasn't sure of {what}. A volunteer needs to confirm it "
+            "before this can be decided.", source))
+    else:
+        out.escalations.append(_esc(
+            "MISSING_INFO", rule_id, f"{what[0].upper() + what[1:]} is missing.",
+            source, action="reask_user"))
+
+
 def _esc(code, rule_id, reason, source, **kw) -> Escalation:
     return Escalation(code=code, rule_id=assert_cited(rule_id), reason=reason,
                       source=source, **kw)
@@ -69,9 +91,8 @@ def is_65_or_older(dob: date | None) -> bool:
 def check_sr_eligibility(intake: IntakeData, out: EligibilityResult) -> None:
     tp_dob = intake.taxpayer.dob
     if tp_dob is None:
-        out.escalations.append(_esc(
-            "MISSING_INFO", "R1.1", "The taxpayer's date of birth is missing.",
-            "intake.taxpayer.dob", action="reask_user"))
+        _missing(intake, out, "taxpayer_dob", "R1.1", "the taxpayer's date of birth",
+                 "intake.birth_date")
         return
     if is_65_or_older(tp_dob):
         out.eligible_1040sr = True
@@ -117,22 +138,22 @@ def validate_filing_status(intake: IntakeData, out: EligibilityResult) -> None:
     out.filing_status = fs
 
     if fs is None:
-        out.escalations.append(_esc(
-            "MISSING_INFO", "R2.1", "Filing status has not been answered yet.",
-            "intake.filing_status", action="reask_user"))
+        _missing(intake, out, "filing_status", "R2.1", "the filing status", "intake.filing_status")
         return
 
+    died = _spouse_death_year(intake)
     # R2.3 — spouse died during the tax year: always ambiguous, always a human.
-    if sp and sp.date_of_death and sp.date_of_death.year == TAX_YEAR:
+    if died == TAX_YEAR or (died is None and "spouse_death_year" in intake.unsure_slots
+                            and intake.spouse_died_recent):
         out.escalations.append(_esc(
             "FILING_STATUS_AMBIGUOUS", "R2.3",
-            "The spouse died during 2025. Choosing between joint, surviving "
-            "spouse and single status needs a volunteer preparer.",
-            "intake.spouse.date_of_death"))
+            "The spouse died during 2025 (or the year is unsure). Choosing between "
+            "joint, surviving spouse and single status needs a volunteer preparer.",
+            "intake.spouse_death_year"))
         return
 
     problems: list[tuple[str, str]] = []
-    living_spouse = sp is not None and sp.date_of_death is None
+    living_spouse = sp is not None and died is None and not intake.spouse_died_recent
     if fs in ("mfj", "mfs") and sp is None:
         problems.append(("R2.2", "A married status was chosen but no spouse details were given."))
     if fs == "hoh":
@@ -141,8 +162,7 @@ def validate_filing_status(intake: IntakeData, out: EligibilityResult) -> None:
         if living_spouse:
             problems.append(("R2.4", "Head of household was chosen while a living spouse is reported."))
     if fs == "qss":
-        died_ok = sp is not None and sp.date_of_death is not None \
-            and sp.date_of_death.year in (TAX_YEAR - 1, TAX_YEAR - 2)
+        died_ok = died in (TAX_YEAR - 1, TAX_YEAR - 2)
         has_child = any(d.qualifying_child for d in intake.dependents)
         if not (died_ok and has_child):
             problems.append(("R2.5", "Qualifying surviving spouse needs a spouse who died in "
@@ -158,6 +178,59 @@ def validate_filing_status(intake: IntakeData, out: EligibilityResult) -> None:
 
 
 # ------------------------------------------------------------------ R4
+def check_spouse_details(intake: IntakeData, out: EligibilityResult) -> None:
+    """On a joint return the spouse's age and blindness feed R1.2, R3 and R5."""
+    if intake.filing_status == "mfj" and intake.spouse is not None and intake.spouse.dob is None:
+        _missing(intake, out, "spouse_dob", "R3.1", "the spouse's date of birth",
+                 "intake.spouse_birth_date")
+
+
+# Other "not sure" answers that block a rule decision: slot -> (rule, words, source)
+UNSURE_BLOCKERS = {
+    "taxpayer_blind": ("R3.1", "whether they are legally blind", "intake.is_blind"),
+    "spouse_blind": ("R3.1", "whether their spouse is legally blind", "intake.spouse_is_blind"),
+    "claimable_as_dependent": ("R4.1", "whether someone else can claim them as a dependent",
+                               "intake.claimable_as_dependent"),
+    "full_year_resident": ("R4.3", "whether they lived in the US all year",
+                           "intake.full_year_resident"),
+    "spouse_itemizes": ("R4.2", "whether their spouse itemizes deductions", "intake.spouse_itemizes"),
+    "box2b_checked": ("R6.9", "whether box 2b is checked on a 1099-R", "intake.box2b_checked"),
+}
+
+
+def check_unsure_answers(intake: IntakeData, out: EligibilityResult) -> None:
+    for slot, (rule_id, what, src) in UNSURE_BLOCKERS.items():
+        if slot in intake.unsure_slots:
+            _missing(intake, out, slot, rule_id, what, src)
+
+
+def check_reported_scope(intake: IntakeData, documents: list[Document],
+                         out: EligibilityResult) -> None:
+    """Out-of-scope facts the taxpayer told Intake about (before any document arrives)."""
+    if intake.wants_itemize:
+        out.escalations.append(_esc(
+            "OUT_OF_SCOPE", "R6.2", "The taxpayer wants to itemize deductions. "
+            "SilverFile only uses the standard deduction.", "intake.wants_itemize"))
+    doc_flagged = any(_norm_doc(d.doc_type) == "1099-R"
+                      and d.fields.get("box_2b_taxable_not_determined") for d in documents)
+    if intake.box2b_reported and not doc_flagged:
+        out.escalations.append(_esc(
+            "UNDETERMINED_TAXABLE_1099R", "R6.9",
+            "The taxpayer says a 1099-R has box 2b ('taxable amount not determined') "
+            "checked. Working that out needs a volunteer preparer.", "intake.box2b_checked"))
+    if intake.other_income:
+        from .eligibility_guardrails import keyword_scan   # local import avoids a cycle
+        detail = intake.other_income_detail or ""
+        rules = sorted({f.rule_id for f in keyword_scan(detail) if f.category == "OUT_OF_SCOPE"}) \
+            or ["R6.11"]
+        for rule_id in rules:
+            out.escalations.append(_esc(
+                "OUT_OF_SCOPE", rule_id,
+                "The taxpayer reported other income" + (f" ({detail[:80]})" if detail else "")
+                + ". SilverFile only handles W-2, SSA-1099, 1099-R, 1099-INT and 1099-DIV.",
+                "intake.other_income"))
+
+
 def check_std_deduction_chart(intake: IntakeData, out: EligibilityResult) -> None:
     blockers = []
     if intake.can_be_claimed_as_dependent:
@@ -270,9 +343,12 @@ def run_rules(intake: IntakeData, documents: list[Document]) -> EligibilityResul
     validate_filing_status(intake, out)
     check_sr_eligibility(intake, out)
     count_12d_boxes(intake, out)
+    check_spouse_details(intake, out)
+    check_unsure_answers(intake, out)
     check_std_deduction_chart(intake, out)
     determine_schedules(intake, out)
     check_scope(intake, documents, out)
+    check_reported_scope(intake, documents, out)
     check_user_document_conflicts(intake, documents, out)
     check_exploitation_signals(intake, out)
 

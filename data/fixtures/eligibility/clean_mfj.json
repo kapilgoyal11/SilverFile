@@ -1,19 +1,34 @@
 {
   "intake": {
-    "filing_status": "mfj",
+    "entered_by": "taxpayer",
+    "taxpayer_name": "Test Taxpayer",
     "birth_date": "1957-04-12",
     "is_blind": false,
+    "claimable_as_dependent": false,
+    "full_year_resident": true,
+    "married_end_of_year": true,
+    "spouse_died_recent": false,
+    "spouse_death_year": null,
+    "filing_status": "mfj",
+    "spouse_name": "Pat Test",
     "spouse_birth_date": "1959-09-30",
     "spouse_is_blind": true,
-    "document_inventory": [
-      "W-2",
-      "SSA-1099",
-      "1099-R",
-      "1099-INT"
-    ],
-    "refund_direct_deposit": true,
-    "refund_account_known": true,
-    "answered_by_taxpayer": true,
+    "spouse_itemizes": null,
+    "lived_apart_all_year": null,
+    "dependents": [],
+    "document_inventory": {
+      "W-2": 1,
+      "SSA-1099": 1,
+      "1099-R": 1,
+      "1099-INT": 1,
+      "1099-DIV": 0
+    },
+    "box2b_checked": null,
+    "other_income": false,
+    "other_income_detail": null,
+    "wants_itemize": false,
+    "unsure": [],
+    "volunteer_questions": [],
     "estimated_payments": 0
   },
   "documents": [

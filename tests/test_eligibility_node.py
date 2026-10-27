@@ -31,6 +31,7 @@ def test_every_citation_exists_in_policy(name):
     ("hitl_exploitation.json", {"EXPLOITATION_RISK"}),
     ("hitl_advice.json", {"ADVICE_REQUEST"}),
     ("hitl_qualified_dividends.json", {"OUT_OF_SCOPE"}),
+    ("hitl_unsure_birth_date.json", {"MISSING_INFO"}),
 ])
 def test_fixtures(name, expected_codes):
     out = eligibility_agent(load(name))
@@ -58,6 +59,7 @@ def test_clean_mfj_values():
 
 def test_escalations_use_team_format():
     e = eligibility_agent(load("hitl_1099r_box2b.json"))["escalations"][0]
+    assert e["id"] == "eligibility:UNDETERMINED_TAXABLE_1099R:R6.9:documents.r_2"
     assert e["raised_by"] == "eligibility"
     assert e["reason"] == "undetermined_taxable_1099r:R6.9"
     assert e["detail"] and e["resolved"] is False
@@ -110,3 +112,39 @@ def test_output_is_json_serialisable():
 def test_empty_state_does_not_crash():
     out = eligibility_agent({})
     assert any(e["code"] == "MISSING_INFO" for e in out["escalations"])
+
+
+# ----------------------------------------------------------------- working with Intake (Karan)
+@pytest.mark.parametrize("fixture, intake_reason", [
+    ("hitl_advice.json", "tax_advice_request"),
+    ("hitl_exploitation.json", "possible_exploitation"),
+])
+def test_no_double_flag_when_intake_already_flagged(fixture, intake_reason):
+    state = load(fixture)
+    state["escalations"] = [{"id": "intake:1", "raised_by": "intake", "reason": intake_reason,
+                             "detail": "x", "resolved": False}]
+    assert eligibility_agent(state)["escalations"] == []
+
+
+def test_still_flags_if_intake_missed_it():
+    """Backup: if Intake did not flag the advice request, Eligibility still does."""
+    out = eligibility_agent(load("hitl_advice.json"))
+    assert [e["code"] for e in out["escalations"]] == ["ADVICE_REQUEST"]
+
+
+def test_unsure_birth_date_goes_to_a_human_not_back_to_intake():
+    e = eligibility_agent(load("hitl_unsure_birth_date.json"))["escalations"][0]
+    assert e["action"] == "human_review" and e["rule_id"] == "R1.1"
+
+
+def test_missing_birth_date_is_reasked():
+    state = load("hitl_unsure_birth_date.json")
+    state["intake"]["unsure"] = []
+    e = eligibility_agent(state)["escalations"][0]
+    assert e["action"] == "reask_user"
+
+
+def test_karan_extra_keys_are_ignored():
+    state = load("clean_mfj.json")
+    state["intake"].update({"adjustments_10": 0, "volunteer_questions": ["Roth?"], "lived_apart_all_year": None})
+    assert eligibility_agent(state)["escalations"] == []

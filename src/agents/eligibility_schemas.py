@@ -11,10 +11,10 @@ EITHER the team's flat intake dict OR the nested form, so tests can stay short.
 """
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, datetime
 from typing import Any, Literal, Optional
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 FilingStatus = Literal["single", "mfj", "mfs", "hoh", "qss"]
 
@@ -22,20 +22,63 @@ AGENT_NAME = "eligibility"   # value of "raised_by" on our escalations
 
 
 # ---------------------------------------------------------------- inputs
+_DATE_FORMATS = ("%Y-%m-%d", "%m/%d/%Y", "%B %d, %Y", "%b %d, %Y", "%d %B %Y")
+
+
+def parse_date(v: Any) -> Optional[date]:
+    """Accept a date, an ISO string or a few common formats. Anything else
+    becomes None (treated as 'not known'), never a crash."""
+    if v is None or isinstance(v, date) and not isinstance(v, datetime):
+        return v
+    if isinstance(v, datetime):
+        return v.date()
+    if isinstance(v, str):
+        for fmt in _DATE_FORMATS:
+            try:
+                return datetime.strptime(v.strip(), fmt).date()
+            except ValueError:
+                continue
+    return None
+
+
 class Person(BaseModel):
     dob: Optional[date] = None
     blind: bool = False
     ssn: Optional[str] = None          # only if genuinely needed
+
+    @field_validator("dob", mode="before")
+    @classmethod
+    def _dob(cls, v):
+        return parse_date(v)
+
+    @field_validator("blind", mode="before")
+    @classmethod
+    def _blind(cls, v):
+        return bool(v)                 # None (unsure) -> False; unsure is flagged separately
 
 
 class Spouse(Person):
     date_of_death: Optional[date] = None
     itemizes: bool = False             # relevant for MFS (R4.2)
 
+    @field_validator("date_of_death", mode="before")
+    @classmethod
+    def _dod(cls, v):
+        return parse_date(v)
+
+    @field_validator("itemizes", mode="before")
+    @classmethod
+    def _itemizes(cls, v):
+        return bool(v)
+
+
+CHILD_RELATIONSHIPS = {"son", "daughter", "child", "stepson", "stepdaughter", "stepchild",
+                       "foster child", "adopted child", "grandson", "granddaughter", "grandchild"}
+
 
 class Dependent(BaseModel):
     name: str
-    relationship: str
+    relationship: Optional[str] = None
     ssn: Optional[str] = None
     qualifying_child: bool = False
 
@@ -52,8 +95,18 @@ class Respondent(BaseModel):
 
 
 # Team flat intake key  ->  (nested path in IntakeData)
+# Source of truth for Intake's keys: memory.intake_handoff() / docs/INTAKE_INTERFACE.md
 FLAT_INTAKE_MAP: dict[str, tuple[str, ...]] = {
     "birth_date": ("taxpayer", "dob"),
+    "claimable_as_dependent": ("can_be_claimed_as_dependent",),
+    "spouse_death_year": ("spouse_death_year",),
+    "spouse_died_recent": ("spouse_died_recent",),
+    "married_end_of_year": ("married_end_of_year",),
+    "wants_itemize": ("wants_itemize",),
+    "box2b_checked": ("box2b_reported",),
+    "other_income": ("other_income",),
+    "other_income_detail": ("other_income_detail",),
+    "unsure": ("unsure_slots",),
     "is_blind": ("taxpayer", "blind"),
     "taxpayer_ssn": ("taxpayer", "ssn"),
     "spouse_birth_date": ("spouse", "dob"),
@@ -84,6 +137,21 @@ class IntakeData(BaseModel):
     schedules_reported: list[str] = Field(default_factory=list)     # e.g. ["1", "3"]
     refund: RefundInfo = Field(default_factory=RefundInfo)
     respondent: Respondent = Field(default_factory=Respondent)
+    # --- extra facts Intake (Karan) collects ---
+    spouse_death_year: Optional[int] = None
+    spouse_died_recent: Optional[bool] = None
+    married_end_of_year: Optional[bool] = None
+    wants_itemize: Optional[bool] = None
+    box2b_reported: Optional[bool] = None       # user said a 1099-R has box 2b checked
+    other_income: Optional[bool] = None         # income beyond the 5 in-scope forms
+    other_income_detail: Optional[str] = None
+    unsure_slots: list[str] = Field(default_factory=list)   # questions answered "I'm not sure"
+
+    @field_validator("can_be_claimed_as_dependent", "dual_status_alien", "has_qualifying_person",
+                     mode="before")
+    @classmethod
+    def _none_is_false(cls, v):
+        return bool(v)
 
     @model_validator(mode="before")
     @classmethod
@@ -92,7 +160,8 @@ class IntakeData(BaseModel):
         Unknown keys (e.g. estimated_payments) are ignored."""
         if not isinstance(data, dict) or not any(k in data for k in FLAT_INTAKE_MAP):
             return data
-        out = {k: v for k, v in data.items() if k not in FLAT_INTAKE_MAP}
+        special = {"full_year_resident", "document_inventory", "dependents"}
+        out = {k: v for k, v in data.items() if k not in FLAT_INTAKE_MAP and k not in special}
         for flat_key, path in FLAT_INTAKE_MAP.items():
             if flat_key not in data or data[flat_key] is None:
                 continue
@@ -100,6 +169,30 @@ class IntakeData(BaseModel):
                 out[path[0]] = data[flat_key]
             else:
                 out.setdefault(path[0], {})[path[1]] = data[flat_key]
+
+        # Not a full-year US resident -> treat as possible dual-status alien (R4.3)
+        if data.get("full_year_resident") is False:
+            out["dual_status_alien"] = True
+        # Intake sends {"W-2": 1, "1099-R": 0, ...}; a None count means "has some, number unsure"
+        inv = data.get("document_inventory")
+        if isinstance(inv, dict):
+            out["documents_reported"] = [k for k, n in inv.items() if n is None or n]
+        elif isinstance(inv, list):
+            out["documents_reported"] = inv
+        # Dependents: infer qualifying_child from the relationship when not given
+        deps = []
+        for d in data.get("dependents") or []:
+            d = dict(d)
+            if "qualifying_child" not in d:
+                d["qualifying_child"] = (d.get("relationship") or "").strip().lower() in CHILD_RELATIONSHIPS
+            d.setdefault("name", "dependent")
+            deps.append(d)
+        out["dependents"] = deps
+        if "has_qualifying_person" not in data:
+            out["has_qualifying_person"] = bool(deps)
+        # Married statuses always have a spouse record (details may be missing/unsure)
+        if data.get("filing_status") in ("mfj", "mfs"):
+            out.setdefault("spouse", {})
         return out
 
 
@@ -149,6 +242,7 @@ class Escalation(BaseModel):
     def to_state(self) -> dict:
         """Team format for state["escalations"] (see src/state.py)."""
         return {
+            "id": f"{AGENT_NAME}:{self.code}:{self.rule_id}:{self.source}",  # merge_escalations replaces by id
             "raised_by": AGENT_NAME,
             "reason": f"{self.code.lower()}:{self.rule_id}",   # short machine label
             "detail": self.reason,                              # plain English
@@ -218,8 +312,9 @@ def escalation_identity(d: dict) -> tuple:
 def open_escalations(escalations: list[dict], action: str = "human_review") -> list[dict]:
     """Unresolved escalations needing `action`.
 
-    state["escalations"] is append-only (operator.add), so an escalation is
-    resolved by APPENDING a copy with "resolved": True (plus resolved_by, note).
+    state["escalations"] uses merge_escalations: an entry whose "id" matches an
+    existing one REPLACES it. So resolving = sending a copy with the same id and
+    "resolved": True (see resolve()). Copies without ids are also handled.
     Escalations from other agents have no "action" and count as human_review.
     """
     resolved = {escalation_identity(e) for e in escalations if e.get("resolved")}
@@ -236,4 +331,5 @@ def open_escalations(escalations: list[dict], action: str = "human_review") -> l
 
 def resolve(escalation: dict, reviewer: str, note: str = "") -> dict:
     """The record a human-review node appends to mark `escalation` resolved."""
-    return {**escalation, "resolved": True, "resolved_by": reviewer, "note": note}
+    return {**escalation, "resolved": True, "resolved_by": reviewer, "note": note,
+            "resolution": note or "resolved"}

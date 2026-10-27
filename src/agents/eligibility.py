@@ -33,6 +33,13 @@ from .eligibility_schemas import (
 )
 
 
+# My escalation code -> the "reason" Intake uses for the same thing
+INTAKE_EQUIVALENTS = {
+    "ADVICE_REQUEST": "tax_advice_request",
+    "EXPLOITATION_RISK": "possible_exploitation",
+}
+
+
 def evaluate(intake: IntakeData, documents: list[Document],
              transcript: list[Utterance],
              llm: Optional[LLMClassifier] = None) -> EligibilityResult:
@@ -65,6 +72,14 @@ def eligibility_agent(state: dict[str, Any]) -> dict[str, Any]:
     transcript = [Utterance.model_validate(u) for u in _transcript(state)]
 
     result = evaluate(intake, documents, transcript, llm=get_llm_classifier())
+
+    # Intake is the agent that hears the conversation. If it has already flagged
+    # an advice request or possible exploitation, don't raise the same thing twice.
+    intake_flags = {e.get("reason") for e in state.get("escalations") or []
+                    if e.get("raised_by") == "intake"}
+    skip = {code for code, reason in INTAKE_EQUIVALENTS.items() if reason in intake_flags}
+    result.escalations = [e for e in result.escalations
+                          if not (e.code in skip and e.source.startswith("transcript"))]
 
     already = {escalation_key(e) for e in state.get("escalations") or []} - {None}
     current = [e.to_state() for e in result.escalations]

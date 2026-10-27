@@ -18,7 +18,7 @@ builder.add_node("eligibility_agent", eligibility_agent)
 | | |
 |---|---|
 | Reads | `intake`, `documents`, `transcript` (or `intake["transcript"]`), `escalations` |
-| Writes | `eligibility` (merge_dicts), `escalations` (only new ones; operator.add) |
+| Writes | `eligibility` (merge_dicts), `escalations` (only new ones; merge_escalations, each with an `id`) |
 | Calls `interrupt()`? | **No.** It raises flags; the graph routes. |
 | Safe to re-run? | **Yes.** It never re-adds an escalation already in state, resolved or not. |
 | Document order | Doesn't matter. |
@@ -32,14 +32,22 @@ It also includes `std_deduction_lookup`, `schedule_1a_qualifiers`, and
 
 **Escalations I append** (team format, plus extra keys):
 ```json
-{"raised_by": "eligibility", "reason": "undetermined_taxable_1099r:R6.9",
+{"id": "eligibility:UNDETERMINED_TAXABLE_1099R:R6.9:documents.r_2",
+ "raised_by": "eligibility", "reason": "undetermined_taxable_1099r:R6.9",
  "detail": "This 1099-R says the taxable amount was not determined (box 2b)...",
  "resolved": false,
  "code": "UNDETERMINED_TAXABLE_1099R", "rule_id": "R6.9", "source": "documents.r_2",
  "action": "human_review", "detected_by": "rule", "evidence": null}
 ```
 `action` is `"human_review"` (a person decides) or `"reask_user"` (Intake asks
-again, e.g. missing birth date or a non-test SSN).
+again, e.g. a missing birth date). If the taxpayer already said "I'm not sure",
+it is `"human_review"` instead, so the graph doesn't loop back to Intake.
+
+**Works with Intake (Karan, PR #1):** reads his `state["intake"]` keys
+(`birth_date`, `claimable_as_dependent`, `full_year_resident`, `spouse_death_year`,
+`document_inventory`, `unsure`, ...) and `state["transcript"]`. If Intake has
+already raised `tax_advice_request` or `possible_exploitation`, Eligibility does
+not raise the same thing again.
 
 ## 2. When to run it
 
@@ -77,10 +85,11 @@ builder.add_conditional_edges("eligibility_agent", route_after_eligibility,
 `open_escalations()` works for **every** agent's escalations, not just mine.
 Others count as `human_review`.
 
-## 4. Resolving: append, don't edit
+## 4. Resolving: send a copy with the same id
 
-`state["escalations"]` uses `operator.add`, so an entry can't be flipped to
-`resolved: True` in place. Instead, **append a resolved copy**:
+`state["escalations"]` uses Karan's `merge_escalations`: an entry whose `id`
+matches an existing one **replaces** it. So resolving = returning a copy with
+`"resolved": True`:
 
 ```python
 from src.agents.eligibility_schemas import resolve
@@ -88,7 +97,7 @@ resolve(escalation, reviewer="kushim-staff-1", note="...")
 # -> {...same fields..., "resolved": True, "resolved_by": "...", "note": "..."}
 ```
 
-`open_escalations()` treats an escalation as closed once a resolved copy exists.
+`open_escalations()` treats an escalation as closed once it (or a copy of it) is resolved.
 
 ## 5. Human-review node (owns the interrupt)
 
@@ -160,7 +169,7 @@ It blocks if:
 
 - [ ] `eligibility_agent` node + conditional routing out of it
 - [ ] `human_review` node with `interrupt()`, edge back to `eligibility_agent`
-- [ ] Resolution by appending (`resolve()`), not editing
+- [ ] Resolution via `resolve()` (same id, replaced by `merge_escalations`)
 - [ ] Loop guard on `handoff_log`, with a test
 - [ ] Checkpointer + `thread_id`
 - [ ] Release gate before `draft_ready`
