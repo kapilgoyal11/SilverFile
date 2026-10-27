@@ -195,3 +195,46 @@ def taxable_social_security(
     lines[18] = Decimal(benefits) * c.SS_RATE_HIGH
     lines[19] = min(lines[17], lines[18])
     return finish(round_half_up(lines[19]), "worksheet completed")
+
+
+
+def senior_deduction(filing_status: str, agi: int, taxpayer_eligible: bool,
+                     spouse_eligible: bool = False) -> dict:
+    """Line 13b: Schedule 1-A Part V (lines 31-37), the only Schedule 1-A part in scope.
+
+    agi = line 11a. For the in-scope returns MAGI equals AGI (the add-backs for
+    foreign income exclusions are out of scope).
+    taxpayer_eligible / spouse_eligible = born before 2 Jan 1961 (decided upstream).
+    """
+    _check_status(filing_status)
+    _check_whole_dollars("agi", agi)
+    if not isinstance(taxpayer_eligible, bool) or not isinstance(spouse_eligible, bool):
+        raise TypeError("taxpayer_eligible and spouse_eligible must be True or False")
+    if spouse_eligible and filing_status != "mfj":
+        raise ValueError("only a joint return can claim the senior deduction for a spouse")
+
+    inputs = {"filing_status": filing_status, "agi": agi,
+              "taxpayer_eligible": taxpayer_eligible, "spouse_eligible": spouse_eligible,
+              "source": c.SOURCES["brief"] + "; IRS Schedule 1-A (2025) Part V"}
+
+    def finish(amount: int, note: str, extra=None) -> dict:
+        return computed(
+            "13b", amount,
+            "Schedule 1-A Part V: each eligible person gets $6,000 minus 6% of (MAGI - threshold), not below 0",
+            {**inputs, **(extra or {}), "result_note": note},
+            "senior_deduction",
+        )
+
+    if filing_status == "mfs":
+        return finish(0, "married filing separately cannot claim the enhanced deduction for seniors")
+    people = int(taxpayer_eligible) + int(spouse_eligible)
+    if people == 0:
+        return finish(0, "no eligible person")
+
+    threshold = c.SENIOR_PHASEOUT_START[filing_status]
+    line_33 = max(agi - threshold, 0)
+    line_34 = round_half_up(Decimal(line_33) * c.SENIOR_PHASEOUT_RATE)
+    line_35 = max(c.SENIOR_DEDUCTION_PER_PERSON - line_34, 0)
+    return finish(people * line_35, "Part V completed",
+                  {"line_31_magi": agi, "line_32_threshold": threshold, "line_33": line_33,
+                   "line_34": line_34, "line_35": line_35, "eligible_people": people})
