@@ -238,3 +238,104 @@ def senior_deduction(filing_status: str, agi: int, taxpayer_eligible: bool,
     return finish(people * line_35, "Part V completed",
                   {"line_31_magi": agi, "line_32_threshold": threshold, "line_33": line_33,
                    "line_34": line_34, "line_35": line_35, "eligible_people": people})
+
+
+
+# ---------------------------------------------------------------------------
+# Simple derived lines. Formula text uses the same names as the `inputs` keys.
+# ---------------------------------------------------------------------------
+
+def _sum_record(line: str, formula: str, parts: dict, tool: str) -> dict:
+    for name, value in parts.items():
+        _check_whole_dollars(name, value)
+    return computed(line, sum(parts.values()), formula, dict(parts), tool)
+
+
+def total_wages_1z(w2_wages: list) -> dict:
+    """Line 1z: W-2 box 1 summed over all W-2s (other 1a-1i items are out of scope)."""
+    if not isinstance(w2_wages, list):
+        raise TypeError("w2_wages must be a list of whole-dollar ints")
+    parts = {f"w2_{i + 1}_box_1": value for i, value in enumerate(w2_wages)}
+    return _sum_record("1z", "sum of W-2 box 1 amounts", parts, "total_wages_1z")
+
+
+def total_income_9(wages_1z, interest_2b, dividends_3b, ira_4b, pension_5b,
+                   social_security_6b, capital_gain_7a=0, other_income_8=0) -> dict:
+    """Line 9. 7a (capital gains) is out of scope so it is normally 0."""
+    return _sum_record(
+        "9", "1z + 2b + 3b + 4b + 5b + 6b + 7a + 8",
+        {"1z": wages_1z, "2b": interest_2b, "3b": dividends_3b, "4b": ira_4b,
+         "5b": pension_5b, "6b": social_security_6b, "7a": capital_gain_7a,
+         "8": other_income_8},
+        "total_income_9",
+    )
+
+
+def adjusted_gross_income_11a(total_income_9: int, adjustments_10: int) -> dict:
+    """Line 11a (the same amount is carried to 11b on page 2 of the form)."""
+    _check_whole_dollars("total_income_9", total_income_9)
+    _check_whole_dollars("adjustments_10", adjustments_10)
+    return computed("11a", total_income_9 - adjustments_10, "9 - 10",
+                    {"9": total_income_9, "10": adjustments_10}, "adjusted_gross_income_11a")
+
+
+def total_deductions_14(standard_deduction_12e: int, additional_deductions_13b: int,
+                        qbi_deduction_13a: int = 0) -> dict:
+    """Line 14. 13a (business income deduction) is out of scope so it is normally 0."""
+    return _sum_record(
+        "14", "12e + 13a + 13b",
+        {"12e": standard_deduction_12e, "13a": qbi_deduction_13a,
+         "13b": additional_deductions_13b},
+        "total_deductions_14",
+    )
+
+
+def taxable_income_15(agi_11b: int, total_deductions_14: int) -> dict:
+    """Line 15: line 11b minus line 14, and never below zero."""
+    _check_whole_dollars("agi_11b", agi_11b)
+    _check_whole_dollars("total_deductions_14", total_deductions_14)
+    return computed("15", max(agi_11b - total_deductions_14, 0), "max(0, 11b - 14)",
+                    {"11b": agi_11b, "14": total_deductions_14}, "taxable_income_15")
+
+
+def total_tax_24(tax_16: int, schedule_2_line_3_17: int = 0, credits_21: int = 0,
+                 other_taxes_23: int = 0) -> dict:
+    """Line 24. Lines 17-23 come from Schedules 2 and 3 entered by the user.
+    NOTE: the line 17-23 structure is from the 2024 form layout; verify against the
+    2025 PDF. credits_21 = line 19 + line 20 (child tax credit + Schedule 3 line 8)."""
+    for name, value in (("tax_16", tax_16), ("schedule_2_line_3_17", schedule_2_line_3_17),
+                        ("credits_21", credits_21), ("other_taxes_23", other_taxes_23)):
+        _check_whole_dollars(name, value)
+    amount = max(tax_16 + schedule_2_line_3_17 - credits_21, 0) + other_taxes_23
+    return computed("24", amount, "max(0, 16 + 17 - 21) + 23",
+                    {"16": tax_16, "17": schedule_2_line_3_17, "21": credits_21,
+                     "23": other_taxes_23}, "total_tax_24")
+
+
+def total_withholding_25d(w2_25a: int, forms_1099_25b: int = 0, other_25c: int = 0) -> dict:
+    """Line 25d. Which form's withholding goes on which of 25a-25c is decided upstream."""
+    return _sum_record("25d", "25a + 25b + 25c",
+                       {"25a": w2_25a, "25b": forms_1099_25b, "25c": other_25c},
+                       "total_withholding_25d")
+
+
+def total_payments_33(withholding_25d: int, estimated_payments_26: int,
+                      other_payments_32: int = 0) -> dict:
+    """Line 33. Line 32 (other payments and refundable credits) is user input."""
+    return _sum_record("33", "25d + 26 + 32",
+                       {"25d": withholding_25d, "26": estimated_payments_26,
+                        "32": other_payments_32},
+                       "total_payments_33")
+
+
+def refund_or_amount_owed(total_tax_24: int, total_payments_33: int) -> dict:
+    """Lines 34 (overpaid) and 37 (amount owed). One of the two is always 0."""
+    _check_whole_dollars("total_tax_24", total_tax_24)
+    _check_whole_dollars("total_payments_33", total_payments_33)
+    inputs = {"24": total_tax_24, "33": total_payments_33}
+    return {
+        "34": computed("34", max(total_payments_33 - total_tax_24, 0), "max(0, 33 - 24)",
+                       inputs, "refund_or_amount_owed"),
+        "37": computed("37", max(total_tax_24 - total_payments_33, 0), "max(0, 24 - 33)",
+                       dict(inputs), "refund_or_amount_owed"),
+    }
