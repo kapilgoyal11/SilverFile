@@ -1,0 +1,10 @@
+{
+  "doc_type": "1099-INT",
+  "fields": {
+    "payer_name": "Example Community Bank",
+    "recipient_tin": "900-12-3456",
+    "box_1_interest": 312,
+    "box_4_withholding": 0,
+    "box_8_tax_exempt_interest": 0
+  }
+}

@@ -79,6 +79,10 @@ class SilverFileState(TypedDict, total=False):
     # {"doc_id": "w2_1", "doc_type": "W-2", "fields": {"box_1_wages": 50000,
     #   "box_2_withholding": 4000}, "source_file": "w2_image_1.jpg"}
     documents: Annotated[list, operator.add]
+    # Input to Extraction: the files the taxpayer supplied, one per document,
+    # {"doc_id": "w2_1", "doc_type": "W-2", "path": "demo/w2_image_1.png"}.
+    # Written by run.py / the dashboard. See docs/EXTRACTION.md.
+    document_files: list
 
     # --- Eligibility & Rules (Narain) writes ---
     # {"eligible_1040sr": True, "age_box_count": 1, "blind_box_count": 0,

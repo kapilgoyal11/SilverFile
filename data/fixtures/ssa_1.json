@@ -1,0 +1,11 @@
+{
+  "doc_type": "SSA-1099",
+  "fields": {
+    "beneficiary_name": "Margaret T Example",
+    "beneficiary_ssn": "900-12-3456",
+    "box_3_benefits_paid": 21600,
+    "box_4_benefits_repaid": 0,
+    "box_5_net_benefits": 21600,
+    "box_6_withheld": 1200
+  }
+}
