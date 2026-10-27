@@ -1,0 +1,120 @@
+{
+  "is_w2": true,
+  "tax_year": {
+    "text": "2025",
+    "confidence": 1.0
+  },
+  "box_a": {
+    "text": "900-65-4321",
+    "confidence": 1.0
+  },
+  "box_b": {
+    "text": "98-7654321",
+    "confidence": 1.0
+  },
+  "box_c": {
+    "text": "Fictional Library District\n9 Placeholder Rd\nSpringfield, IL 62702",
+    "confidence": 1.0
+  },
+  "box_d": {
+    "text": null,
+    "confidence": 1.0
+  },
+  "box_e": {
+    "text": "Robert J Example",
+    "confidence": 1.0
+  },
+  "box_f": {
+    "text": "22 Sample Lane\nSpringfield, IL 62704",
+    "confidence": 1.0
+  },
+  "box_1": {
+    "text": "9800.00",
+    "confidence": 1.0
+  },
+  "box_2": {
+    "text": "400.00",
+    "confidence": 1.0
+  },
+  "box_3": {
+    "text": "9800.00",
+    "confidence": 1.0
+  },
+  "box_4": {
+    "text": "608.00",
+    "confidence": 1.0
+  },
+  "box_5": {
+    "text": "9800.00",
+    "confidence": 1.0
+  },
+  "box_6": {
+    "text": "142.00",
+    "confidence": 1.0
+  },
+  "box_7": {
+    "text": null,
+    "confidence": 1.0
+  },
+  "box_8": {
+    "text": null,
+    "confidence": 1.0
+  },
+  "box_10": {
+    "text": null,
+    "confidence": 1.0
+  },
+  "box_11": {
+    "text": null,
+    "confidence": 1.0
+  },
+  "box_14": {
+    "text": null,
+    "confidence": 1.0
+  },
+  "box_12": [],
+  "box_13_statutory_employee": {
+    "text": null,
+    "confidence": 1.0
+  },
+  "box_13_retirement_plan": {
+    "text": null,
+    "confidence": 1.0
+  },
+  "box_13_third_party_sick_pay": {
+    "text": null,
+    "confidence": 1.0
+  },
+  "state_lines": [
+    {
+      "state": {
+        "text": "IL",
+        "confidence": 1.0
+      },
+      "employer_state_id": {
+        "text": "8765-4321",
+        "confidence": 1.0
+      },
+      "box_16": {
+        "text": "9800.00",
+        "confidence": 1.0
+      },
+      "box_17": {
+        "text": "485.00",
+        "confidence": 1.0
+      },
+      "box_18": {
+        "text": null,
+        "confidence": 1.0
+      },
+      "box_19": {
+        "text": null,
+        "confidence": 1.0
+      },
+      "box_20": {
+        "text": null,
+        "confidence": 1.0
+      }
+    }
+  ]
+}

@@ -1,0 +1,132 @@
+{
+  "is_w2": true,
+  "tax_year": {
+    "text": "2025",
+    "confidence": 1.0
+  },
+  "box_a": {
+    "text": "900-12-3456",
+    "confidence": 1.0
+  },
+  "box_b": {
+    "text": "12-3456789",
+    "confidence": 1.0
+  },
+  "box_c": {
+    "text": "Kushim Test Bakery LLC\n410 Example Ave\nSpringfield, IL 62701",
+    "confidence": 1.0
+  },
+  "box_d": {
+    "text": "CTRL-0001",
+    "confidence": 1.0
+  },
+  "box_e": {
+    "text": "Margaret T Example",
+    "confidence": 1.0
+  },
+  "box_f": {
+    "text": "22 Sample Lane\nSpringfield, IL 62704",
+    "confidence": 1.0
+  },
+  "box_1": {
+    "text": "18450.00",
+    "confidence": 1.0
+  },
+  "box_2": {
+    "text": "1210.00",
+    "confidence": 1.0
+  },
+  "box_3": {
+    "text": "18450.00",
+    "confidence": 1.0
+  },
+  "box_4": {
+    "text": "1144.00",
+    "confidence": 1.0
+  },
+  "box_5": {
+    "text": "18450.00",
+    "confidence": 1.0
+  },
+  "box_6": {
+    "text": "268.00",
+    "confidence": 1.0
+  },
+  "box_7": {
+    "text": null,
+    "confidence": 1.0
+  },
+  "box_8": {
+    "text": null,
+    "confidence": 1.0
+  },
+  "box_10": {
+    "text": null,
+    "confidence": 1.0
+  },
+  "box_11": {
+    "text": null,
+    "confidence": 1.0
+  },
+  "box_14": {
+    "text": null,
+    "confidence": 1.0
+  },
+  "box_12": [
+    {
+      "slot": "a",
+      "code": {
+        "text": "D",
+        "confidence": 1.0
+      },
+      "amount": {
+        "text": "1500.00",
+        "confidence": 1.0
+      }
+    }
+  ],
+  "box_13_statutory_employee": {
+    "text": null,
+    "confidence": 1.0
+  },
+  "box_13_retirement_plan": {
+    "text": "X",
+    "confidence": 1.0
+  },
+  "box_13_third_party_sick_pay": {
+    "text": null,
+    "confidence": 1.0
+  },
+  "state_lines": [
+    {
+      "state": {
+        "text": "IL",
+        "confidence": 1.0
+      },
+      "employer_state_id": {
+        "text": "1234-5678",
+        "confidence": 1.0
+      },
+      "box_16": {
+        "text": "18450.00",
+        "confidence": 1.0
+      },
+      "box_17": {
+        "text": "913.00",
+        "confidence": 1.0
+      },
+      "box_18": {
+        "text": null,
+        "confidence": 1.0
+      },
+      "box_19": {
+        "text": null,
+        "confidence": 1.0
+      },
+      "box_20": {
+        "text": null,
+        "confidence": 1.0
+      }
+    }
+  ]
+}
