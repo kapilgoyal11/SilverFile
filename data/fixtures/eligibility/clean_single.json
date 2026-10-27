@@ -1,0 +1,28 @@
+{
+  "intake": {
+    "filing_status": "single",
+    "birth_date": "1961-01-01",
+    "is_blind": false,
+    "document_inventory": [
+      "W-2"
+    ],
+    "answered_by_taxpayer": true
+  },
+  "documents": [
+    {
+      "doc_id": "w2_1",
+      "doc_type": "W-2",
+      "fields": {
+        "box_1_wages": 18500,
+        "box_2_withholding": 1650
+      },
+      "source_file": "w2_image_1.jpg"
+    }
+  ],
+  "transcript": [
+    {
+      "role": "user",
+      "text": "I just have the one W-2 from my part-time job."
+    }
+  ]
+}

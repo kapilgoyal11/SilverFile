@@ -1,0 +1,38 @@
+{
+  "intake": {
+    "filing_status": "single",
+    "birth_date": "1955-02-20",
+    "document_inventory": [
+      "1099-R",
+      "SSA-1099"
+    ],
+    "answered_by_taxpayer": true
+  },
+  "documents": [
+    {
+      "doc_id": "ssa_1",
+      "doc_type": "SSA-1099",
+      "fields": {
+        "box_5_net_benefits": 24000,
+        "box_6_withheld": 0
+      }
+    },
+    {
+      "doc_id": "r_2",
+      "doc_type": "1099-R",
+      "fields": {
+        "box_1_gross": 12000,
+        "box_2a_taxable": 0,
+        "box_2b_taxable_not_determined": true,
+        "box_4_withholding": 1200,
+        "is_ira": false
+      }
+    }
+  ],
+  "transcript": [
+    {
+      "role": "user",
+      "text": "I get a pension from my old employer."
+    }
+  ]
+}

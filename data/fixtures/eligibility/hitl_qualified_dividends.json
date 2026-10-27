@@ -1,0 +1,36 @@
+{
+  "intake": {
+    "filing_status": "single",
+    "birth_date": "1952-08-08",
+    "document_inventory": [
+      "SSA-1099",
+      "1099-DIV"
+    ],
+    "answered_by_taxpayer": true
+  },
+  "documents": [
+    {
+      "doc_id": "ssa_1",
+      "doc_type": "SSA-1099",
+      "fields": {
+        "box_5_net_benefits": 24000,
+        "box_6_withheld": 0
+      }
+    },
+    {
+      "doc_id": "div_1",
+      "doc_type": "1099-DIV",
+      "fields": {
+        "box_1a_ordinary_dividends": 900,
+        "box_1b_qualified_dividends": 600,
+        "box_4_withholding": 0
+      }
+    }
+  ],
+  "transcript": [
+    {
+      "role": "user",
+      "text": "I have some dividends from an index fund."
+    }
+  ]
+}

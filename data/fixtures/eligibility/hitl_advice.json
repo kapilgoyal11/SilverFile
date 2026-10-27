@@ -1,0 +1,30 @@
+{
+  "intake": {
+    "filing_status": "mfj",
+    "birth_date": "1958-01-01",
+    "spouse_birth_date": "1960-02-02",
+    "document_inventory": [
+      "1099-R"
+    ],
+    "answered_by_taxpayer": true
+  },
+  "documents": [
+    {
+      "doc_id": "r_1",
+      "doc_type": "1099-R",
+      "fields": {
+        "box_1_gross": 12000,
+        "box_2a_taxable": 12000,
+        "box_2b_taxable_not_determined": false,
+        "box_4_withholding": 1200,
+        "is_ira": false
+      }
+    }
+  ],
+  "transcript": [
+    {
+      "role": "user",
+      "text": "Should I convert my IRA to a Roth this year to save on taxes?"
+    }
+  ]
+}
