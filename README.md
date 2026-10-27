@@ -12,7 +12,8 @@ SilverFile **never files** a return, **never gives tax advice**, and **never sta
 | Provenance records (`src/tools/provenance.py`) | Done |
 | Tax calculation tools (`src/tools/tax_math.py`) | Done, tested against IRS tables and worked examples |
 | Computation agent (`src/agents/computation.py`) | Done |
-| Orchestrator, Intake, Extraction, Eligibility, Review | Not yet merged |
+| Intake agent and agent memory (`src/agents/intake.py`, `src/memory.py`) | Done, see `docs/INTAKE_INTERFACE.md` |
+| Orchestrator, Extraction, Eligibility, Review | Not yet merged |
 | Graph, dashboard, PDF form, demo cases, traces | Not yet merged |
 
 ## Setup
@@ -33,6 +34,15 @@ Copy `.env.example` to `.env` and add your own key once the team has chosen an L
 
 ```
 python -m pytest -q
+```
+
+## Try the Intake agent on its own
+
+```
+python run_intake.py --session test          # chat in the terminal; type quit to stop
+python run_intake.py --session test          # run again later: resumes where you left off
+python run_intake.py --session test --show   # print what intake collected
+python -m scripts.measure_context --both     # regenerate docs/metrics.md
 ```
 
 ## Repository layout
