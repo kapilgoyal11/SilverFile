@@ -15,14 +15,64 @@ def merge_dicts(left: Optional[dict], right: Optional[dict]) -> dict:
     return merged
 
 
+def merge_answers(left: Optional[dict], right: Optional[dict]) -> dict:
+    """Reducer for Intake's answer ledger (Karan). Merges slot by slot, and when
+    a slot is answered again the earlier version is moved into that answer's
+    `history` instead of being overwritten. Nothing the taxpayer said is lost."""
+    merged = dict(left or {})
+    for slot, new in (right or {}).items():
+        old = merged.get(slot)
+        if old is None or (old.get("entered_at") == new.get("entered_at")
+                           and old.get("value") == new.get("value")):
+            merged[slot] = new
+            continue
+        history = list(new.get("history") or [])
+        old_version = {k: old.get(k) for k in
+                       ("value", "raw_text", "entered_by", "entered_at", "turn", "status")}
+        if old_version not in history:
+            for h in old.get("history") or []:
+                if h not in history:
+                    history.append(h)
+            history.append(old_version)
+            history.sort(key=lambda v: (v.get("turn", 0), v.get("entered_at", "")))
+        merged[slot] = {**new, "history": history}
+    return merged
+
+
+def merge_escalations(left: Optional[list], right: Optional[list]) -> list:
+    """Reducer for escalations. Behaves like operator.add (append), with one
+    addition: an entry that has an "id" matching an existing entry replaces it.
+    That is how a human marks an escalation resolved. Entries without an "id"
+    are always appended, so agents that don't use ids are unaffected."""
+    out = list(left or [])
+    index = {e["id"]: i for i, e in enumerate(out) if isinstance(e, dict) and "id" in e}
+    for e in right or []:
+        if isinstance(e, dict) and "id" in e and e["id"] in index:
+            out[index[e["id"]]] = e
+        else:
+            if isinstance(e, dict) and "id" in e:
+                index[e["id"]] = len(out)
+            out.append(e)
+    return out
+
+
 class SilverFileState(TypedDict, total=False):
     # --- session ---
     session_id: str
 
     # --- Intake (Karan) writes ---
-    # Plain answers from the taxpayer, e.g. filing_status, birth_date,
-    # is_blind, spouse_*, dependents, estimated_payments, document_inventory.
+    # Plain answers from the taxpayer, written once intake is complete. Key list
+    # and meanings: docs/INTAKE_INTERFACE.md. Amounts are whole-dollar ints;
+    # filing_status uses the shared strings (single, mfj, mfs, hoh, qss).
     intake: Annotated[dict, merge_dicts]
+    # Answer ledger: one record per question with value, the taxpayer's own
+    # (SSN-redacted) words, who entered it, when, and earlier versions.
+    answers: Annotated[dict, merge_answers]
+    transcript: Annotated[list, operator.add]       # SSN-redacted conversation
+    intake_progress: dict                           # which question we're on, etc.
+    intake_complete: bool
+    volunteer_notes: Annotated[list, operator.add]  # advice questions noted for the human preparer
+    token_log: Annotated[list, operator.add]        # input tokens per model call (docs/metrics.md)
 
     # --- Document Extraction (Rodrigo) writes ---
     # One entry per document, appended from parallel branches:
@@ -48,7 +98,9 @@ class SilverFileState(TypedDict, total=False):
     # --- Escalation (any agent appends) ---
     # {"raised_by": "eligibility", "reason": "out_of_scope:schedule_c",
     #  "detail": "...", "resolved": False}
-    escalations: Annotated[list, operator.add]
+    # Optional extra keys: "id" (lets a human resolve it in place), "blocking"
+    # (True = stop the conversation now), "slot" (which intake question).
+    escalations: Annotated[list, merge_escalations]
 
     # --- Orchestrator (David) writes ---
     next_agent: str
