@@ -1,0 +1,87 @@
+{
+  "intake": {
+    "entered_by": "taxpayer",
+    "taxpayer_name": "Test Taxpayer",
+    "birth_date": "1957-04-12",
+    "is_blind": false,
+    "claimable_as_dependent": false,
+    "full_year_resident": true,
+    "married_end_of_year": true,
+    "spouse_died_recent": false,
+    "spouse_death_year": null,
+    "filing_status": "mfj",
+    "spouse_name": "Pat Test",
+    "spouse_birth_date": "1959-09-30",
+    "spouse_is_blind": true,
+    "spouse_itemizes": null,
+    "lived_apart_all_year": null,
+    "dependents": [],
+    "document_inventory": {
+      "W-2": 1,
+      "SSA-1099": 1,
+      "1099-R": 1,
+      "1099-INT": 1,
+      "1099-DIV": 0
+    },
+    "box2b_checked": null,
+    "other_income": false,
+    "other_income_detail": null,
+    "wants_itemize": false,
+    "unsure": [],
+    "volunteer_questions": [],
+    "estimated_payments": 0
+  },
+  "documents": [
+    {
+      "doc_id": "w2_1",
+      "doc_type": "W-2",
+      "fields": {
+        "box_1_wages": 18500,
+        "box_2_withholding": 1650
+      },
+      "source_file": "w2_image_1.jpg"
+    },
+    {
+      "doc_id": "ssa_1",
+      "doc_type": "SSA-1099",
+      "fields": {
+        "box_5_net_benefits": 24000,
+        "box_6_withheld": 0
+      }
+    },
+    {
+      "doc_id": "r_1",
+      "doc_type": "1099-R",
+      "fields": {
+        "box_1_gross": 12000,
+        "box_2a_taxable": 12000,
+        "box_2b_taxable_not_determined": false,
+        "box_4_withholding": 1200,
+        "is_ira": false
+      }
+    },
+    {
+      "doc_id": "int_1",
+      "doc_type": "1099-INT",
+      "fields": {
+        "box_1_interest": 350,
+        "box_8_tax_exempt_interest": 0,
+        "box_4_withholding": 0
+      }
+    }
+  ],
+  "transcript": [
+    {
+      "role": "assistant",
+      "text": "How do you plan to file this year?"
+    },
+    {
+      "role": "user",
+      "text": "Jointly with my wife, same as always."
+    },
+    {
+      "role": "user",
+      "text": "Should I upload my W-2 now?"
+    }
+  ]
+}

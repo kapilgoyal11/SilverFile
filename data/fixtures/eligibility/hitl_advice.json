@@ -1,0 +1,53 @@
+{
+  "intake": {
+    "entered_by": "taxpayer",
+    "taxpayer_name": "Test Taxpayer",
+    "birth_date": "1958-01-01",
+    "is_blind": false,
+    "claimable_as_dependent": false,
+    "full_year_resident": true,
+    "married_end_of_year": true,
+    "spouse_died_recent": false,
+    "spouse_death_year": null,
+    "filing_status": "mfj",
+    "spouse_name": null,
+    "spouse_birth_date": "1960-02-02",
+    "spouse_is_blind": false,
+    "spouse_itemizes": null,
+    "lived_apart_all_year": null,
+    "dependents": [],
+    "document_inventory": {
+      "W-2": 0,
+      "SSA-1099": 0,
+      "1099-R": 1,
+      "1099-INT": 0,
+      "1099-DIV": 0
+    },
+    "box2b_checked": null,
+    "other_income": false,
+    "other_income_detail": null,
+    "wants_itemize": false,
+    "unsure": [],
+    "volunteer_questions": [],
+    "estimated_payments": 0
+  },
+  "documents": [
+    {
+      "doc_id": "r_1",
+      "doc_type": "1099-R",
+      "fields": {
+        "box_1_gross": 12000,
+        "box_2a_taxable": 12000,
+        "box_2b_taxable_not_determined": false,
+        "box_4_withholding": 1200,
+        "is_ira": false
+      }
+    }
+  ],
+  "transcript": [
+    {
+      "role": "user",
+      "text": "Should I convert my IRA to a Roth this year to save on taxes?"
+    }
+  ]
+}

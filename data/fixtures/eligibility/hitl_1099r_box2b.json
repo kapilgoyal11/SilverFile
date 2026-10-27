@@ -1,0 +1,61 @@
+{
+  "intake": {
+    "entered_by": "taxpayer",
+    "taxpayer_name": "Test Taxpayer",
+    "birth_date": "1955-02-20",
+    "is_blind": false,
+    "claimable_as_dependent": false,
+    "full_year_resident": true,
+    "married_end_of_year": false,
+    "spouse_died_recent": false,
+    "spouse_death_year": null,
+    "filing_status": "single",
+    "spouse_name": null,
+    "spouse_birth_date": null,
+    "spouse_is_blind": null,
+    "spouse_itemizes": null,
+    "lived_apart_all_year": null,
+    "dependents": [],
+    "document_inventory": {
+      "W-2": 0,
+      "SSA-1099": 1,
+      "1099-R": 1,
+      "1099-INT": 0,
+      "1099-DIV": 0
+    },
+    "box2b_checked": true,
+    "other_income": false,
+    "other_income_detail": null,
+    "wants_itemize": false,
+    "unsure": [],
+    "volunteer_questions": [],
+    "estimated_payments": 0
+  },
+  "documents": [
+    {
+      "doc_id": "ssa_1",
+      "doc_type": "SSA-1099",
+      "fields": {
+        "box_5_net_benefits": 24000,
+        "box_6_withheld": 0
+      }
+    },
+    {
+      "doc_id": "r_2",
+      "doc_type": "1099-R",
+      "fields": {
+        "box_1_gross": 12000,
+        "box_2a_taxable": 0,
+        "box_2b_taxable_not_determined": true,
+        "box_4_withholding": 1200,
+        "is_ira": false
+      }
+    }
+  ],
+  "transcript": [
+    {
+      "role": "user",
+      "text": "I get a pension from my old employer."
+    }
+  ]
+}
