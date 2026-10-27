@@ -1,0 +1,380 @@
+[
+  {
+    "turn": 1,
+    "slot": "is_taxpayer",
+    "input_tokens": 143,
+    "messages": 3,
+    "measured": "tiktoken"
+  },
+  {
+    "turn": 2,
+    "slot": "taxpayer_name",
+    "input_tokens": 168,
+    "messages": 5,
+    "measured": "tiktoken"
+  },
+  {
+    "turn": 3,
+    "slot": "taxpayer_dob",
+    "input_tokens": 187,
+    "messages": 7,
+    "measured": "tiktoken"
+  },
+  {
+    "turn": 4,
+    "slot": "taxpayer_dob",
+    "input_tokens": 210,
+    "messages": 7,
+    "measured": "tiktoken"
+  },
+  {
+    "turn": 5,
+    "slot": "taxpayer_blind",
+    "input_tokens": 233,
+    "messages": 7,
+    "measured": "tiktoken"
+  },
+  {
+    "turn": 6,
+    "slot": "taxpayer_blind",
+    "input_tokens": 231,
+    "messages": 7,
+    "measured": "tiktoken"
+  },
+  {
+    "turn": 7,
+    "slot": "claimable_as_dependent",
+    "input_tokens": 240,
+    "messages": 7,
+    "measured": "tiktoken"
+  },
+  {
+    "turn": 8,
+    "slot": "full_year_resident",
+    "input_tokens": 214,
+    "messages": 7,
+    "measured": "tiktoken"
+  },
+  {
+    "turn": 9,
+    "slot": "married_end_of_year",
+    "input_tokens": 215,
+    "messages": 7,
+    "measured": "tiktoken"
+  },
+  {
+    "turn": 10,
+    "slot": "filing_status",
+    "input_tokens": 270,
+    "messages": 7,
+    "measured": "tiktoken"
+  },
+  {
+    "turn": 11,
+    "slot": "filing_status",
+    "input_tokens": 351,
+    "messages": 7,
+    "measured": "tiktoken"
+  },
+  {
+    "turn": 12,
+    "slot": "spouse_name",
+    "input_tokens": 313,
+    "messages": 7,
+    "measured": "tiktoken"
+  },
+  {
+    "turn": 13,
+    "slot": "spouse_dob",
+    "input_tokens": 244,
+    "messages": 7,
+    "measured": "tiktoken"
+  },
+  {
+    "turn": 14,
+    "slot": "spouse_blind",
+    "input_tokens": 180,
+    "messages": 7,
+    "measured": "tiktoken"
+  },
+  {
+    "turn": 15,
+    "slot": "has_dependents",
+    "input_tokens": 182,
+    "messages": 7,
+    "measured": "tiktoken"
+  },
+  {
+    "turn": 16,
+    "slot": "dependent_1_name",
+    "input_tokens": 183,
+    "messages": 7,
+    "measured": "tiktoken"
+  },
+  {
+    "turn": 17,
+    "slot": "dependent_1_relationship",
+    "input_tokens": 197,
+    "messages": 7,
+    "measured": "tiktoken"
+  },
+  {
+    "turn": 18,
+    "slot": "dependent_1_ssn",
+    "input_tokens": 199,
+    "messages": 7,
+    "measured": "tiktoken"
+  },
+  {
+    "turn": 19,
+    "slot": "dependent_1_another",
+    "input_tokens": 195,
+    "messages": 7,
+    "measured": "tiktoken"
+  },
+  {
+    "turn": 20,
+    "slot": "dependent_2_name",
+    "input_tokens": 186,
+    "messages": 7,
+    "measured": "tiktoken"
+  },
+  {
+    "turn": 21,
+    "slot": "dependent_2_relationship",
+    "input_tokens": 192,
+    "messages": 7,
+    "measured": "tiktoken"
+  },
+  {
+    "turn": 22,
+    "slot": "dependent_2_ssn",
+    "input_tokens": 196,
+    "messages": 7,
+    "measured": "tiktoken"
+  },
+  {
+    "turn": 23,
+    "slot": "dependent_2_another",
+    "input_tokens": 194,
+    "messages": 7,
+    "measured": "tiktoken"
+  },
+  {
+    "turn": 24,
+    "slot": "dependent_3_name",
+    "input_tokens": 186,
+    "messages": 7,
+    "measured": "tiktoken"
+  },
+  {
+    "turn": 25,
+    "slot": "dependent_3_relationship",
+    "input_tokens": 193,
+    "messages": 7,
+    "measured": "tiktoken"
+  },
+  {
+    "turn": 26,
+    "slot": "dependent_3_ssn",
+    "input_tokens": 197,
+    "messages": 7,
+    "measured": "tiktoken"
+  },
+  {
+    "turn": 27,
+    "slot": "dependent_3_another",
+    "input_tokens": 195,
+    "messages": 7,
+    "measured": "tiktoken"
+  },
+  {
+    "turn": 28,
+    "slot": "dependent_4_name",
+    "input_tokens": 186,
+    "messages": 7,
+    "measured": "tiktoken"
+  },
+  {
+    "turn": 29,
+    "slot": "dependent_4_relationship",
+    "input_tokens": 193,
+    "messages": 7,
+    "measured": "tiktoken"
+  },
+  {
+    "turn": 30,
+    "slot": "dependent_4_ssn",
+    "input_tokens": 198,
+    "messages": 7,
+    "measured": "tiktoken"
+  },
+  {
+    "turn": 31,
+    "slot": "dependent_4_another",
+    "input_tokens": 194,
+    "messages": 7,
+    "measured": "tiktoken"
+  },
+  {
+    "turn": 32,
+    "slot": "has_w2",
+    "input_tokens": 199,
+    "messages": 7,
+    "measured": "tiktoken"
+  },
+  {
+    "turn": 33,
+    "slot": "w2_count",
+    "input_tokens": 200,
+    "messages": 7,
+    "measured": "tiktoken"
+  },
+  {
+    "turn": 34,
+    "slot": "w2_count",
+    "input_tokens": 215,
+    "messages": 7,
+    "measured": "tiktoken"
+  },
+  {
+    "turn": 35,
+    "slot": "has_ssa1099",
+    "input_tokens": 237,
+    "messages": 7,
+    "measured": "tiktoken"
+  },
+  {
+    "turn": 36,
+    "slot": "has_ssa1099",
+    "input_tokens": 256,
+    "messages": 7,
+    "measured": "tiktoken"
+  },
+  {
+    "turn": 37,
+    "slot": "has_1099r",
+    "input_tokens": 268,
+    "messages": 7,
+    "measured": "tiktoken"
+  },
+  {
+    "turn": 38,
+    "slot": "has_1099r",
+    "input_tokens": 253,
+    "messages": 7,
+    "measured": "tiktoken"
+  },
+  {
+    "turn": 39,
+    "slot": "count_1099r",
+    "input_tokens": 230,
+    "messages": 7,
+    "measured": "tiktoken"
+  },
+  {
+    "turn": 40,
+    "slot": "box2b_checked",
+    "input_tokens": 222,
+    "messages": 7,
+    "measured": "tiktoken"
+  },
+  {
+    "turn": 41,
+    "slot": "has_1099int",
+    "input_tokens": 218,
+    "messages": 7,
+    "measured": "tiktoken"
+  },
+  {
+    "turn": 42,
+    "slot": "has_1099div",
+    "input_tokens": 239,
+    "messages": 7,
+    "measured": "tiktoken"
+  },
+  {
+    "turn": 43,
+    "slot": "other_income",
+    "input_tokens": 256,
+    "messages": 7,
+    "measured": "tiktoken"
+  },
+  {
+    "turn": 44,
+    "slot": "other_income",
+    "input_tokens": 309,
+    "messages": 7,
+    "measured": "tiktoken"
+  },
+  {
+    "turn": 45,
+    "slot": "wants_itemize",
+    "input_tokens": 323,
+    "messages": 7,
+    "measured": "tiktoken"
+  },
+  {
+    "turn": 46,
+    "slot": "made_estimated_payments",
+    "input_tokens": 320,
+    "messages": 7,
+    "measured": "tiktoken"
+  },
+  {
+    "turn": 47,
+    "slot": "estimated_payments_total",
+    "input_tokens": 267,
+    "messages": 7,
+    "measured": "tiktoken"
+  },
+  {
+    "turn": 48,
+    "slot": "has_adjustments",
+    "input_tokens": 291,
+    "messages": 7,
+    "measured": "tiktoken"
+  },
+  {
+    "turn": 49,
+    "slot": "has_other_schedules",
+    "input_tokens": 324,
+    "messages": 7,
+    "measured": "tiktoken"
+  },
+  {
+    "turn": 50,
+    "slot": "has_other_withholding",
+    "input_tokens": 335,
+    "messages": 7,
+    "measured": "tiktoken"
+  },
+  {
+    "turn": 51,
+    "slot": "confirm_all",
+    "input_tokens": 599,
+    "messages": 7,
+    "measured": "tiktoken"
+  },
+  {
+    "turn": 52,
+    "slot": "change_what",
+    "input_tokens": 297,
+    "messages": 7,
+    "measured": "tiktoken"
+  },
+  {
+    "turn": 53,
+    "slot": "taxpayer_dob",
+    "input_tokens": 277,
+    "messages": 7,
+    "measured": "tiktoken"
+  },
+  {
+    "turn": 54,
+    "slot": "confirm_all",
+    "input_tokens": 560,
+    "messages": 7,
+    "measured": "tiktoken"
+  }
+]
