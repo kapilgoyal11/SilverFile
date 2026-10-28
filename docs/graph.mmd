@@ -1,0 +1,30 @@
+---
+title: SilverFile orchestration (hub and spoke; dotted = conditional routing from the hub)
+---
+flowchart TD
+    S([start]) --> O
+    O{{"orchestrator<br/>decide(state), loop guard, task dispatch"}}
+
+    O -.-> I["intake_agent"]
+    I -- "next question" --> I
+    I --> O
+
+    O -. "Send × N" .-> X["extraction_agent<br/>(parallel branches)"]
+    X --> O
+
+    O -.-> E["eligibility_agent"]
+    E --> O
+
+    O -.-> C["computation_agent"]
+    C --> O
+
+    O -.-> R["review_agent"]
+    R --> O
+
+    O -. "escalation" .-> H["human_review<br/>interrupt()"]
+    H --> O
+
+    O -. "audit approved" .-> G["release_gate"]
+    G -.-> O
+    G --> END([end: draft_ready])
+    O -. "stopped by human" .-> END

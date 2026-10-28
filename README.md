@@ -13,8 +13,9 @@ SilverFile **never files** a return, **never gives tax advice**, and **never sta
 | Tax calculation tools (`src/tools/tax_math.py`) | Done, tested against IRS tables and worked examples |
 | Computation agent (`src/agents/computation.py`) | Done |
 | Intake agent and agent memory (`src/agents/intake.py`, `src/memory.py`) | Done, see `docs/INTAKE_INTERFACE.md` |
-| Orchestrator, Extraction, Eligibility, Review | Not yet merged |
-| Graph, dashboard, PDF form, demo cases, traces | Not yet merged |
+| Orchestrator and graph (`src/agents/orchestrator.py`, `src/graph.py`, `run.py`) | Done, see `docs/ORCHESTRATION.md` |
+| Extraction, Eligibility, Review | Merged; wired into the graph |
+| Dashboard, PDF form, demo cases, traces | Not yet merged |
 
 ## Setup
 
@@ -88,10 +89,21 @@ Assumptions still to be confirmed with the instructor:
 4. The Social Security worksheet needs the Schedule 1 adjustments broken down by line, not just the line 26 total.
 5. The structure of Form 1040-SR lines 17 to 23 comes from the 2024 layout and needs checking against the 2025 PDF.
 
-## Orchestration diagram
+## Orchestration
 
-To be added by the Orchestrator owner.
+Hub and spoke. Every agent returns to the orchestrator, which reads the shared state and picks the next hop from a decision table (no LLM call). Extraction fans out as one `Send` per document and the hub is the fan-in. Review's send-backs are dispatched to the agent that owns the finding, once per round, and a human is pulled in through one `interrupt()` node for every escalation. Full design, decision table and loop guards: `docs/ORCHESTRATION.md`.
+
+![Orchestration graph](docs/graph.png)
 
 ## Running the full system
 
-To be added once the agents are connected (`run.py`).
+```
+python run.py --session demo-1 --state data/fixtures/eligibility/clean_single.json --ssn 900-12-3456
+python run.py --session demo-2 --state data/fixtures/eligibility/hitl_advice.json --ssn 900-12-3456 --spouse-ssn 900-98-7654
+python run.py --session demo-3 --state data/fixtures/eligibility/clean_single.json --ssn 900-12-3456 \
+    --doc data/fixtures/w2_1.png --doc data/fixtures/int_1.json --offline
+python run.py --session demo-4                       # full intake conversation from scratch
+python run.py --session demo-2 --resume              # continue a paused session
+```
+
+`--state` seeds a finished intake so the run starts at Eligibility. When the graph pauses it prints why and waits: intake questions take a plain answer, human review takes `proceed <note>` or `stop <note>`. Sessions are checkpointed in SQLite (`silverfile_sessions.sqlite` or `$SILVERFILE_DB`) and resume by `--session` id. The final state is written to `traces/<session>_state.json`.
