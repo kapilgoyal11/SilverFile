@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SilverFile Review Console</title>
+<link rel="stylesheet" href="/static/styles.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2315243A'/%3E%3Cpath d='M9 21c1.5 1.4 3.6 2 6 2 3.2 0 5.5-1.5 5.5-4 0-5.2-11-3-11-8 0-2.3 2.1-4 5.2-4 2.2 0 4 .6 5.3 1.7' fill='none' stroke='%23C9A85A' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E">
+</head>
+<body>
+<div class="shell">
+  <aside class="rail" aria-label="Main">
+    <a class="brand" href="#/">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7"/><path d="M9 21c1.5 1.4 3.6 2 6 2 3.2 0 5.5-1.5 5.5-4 0-5.2-11-3-11-8 0-2.3 2.1-4 5.2-4 2.2 0 4 .6 5.3 1.7"/></svg>
+      <span><strong>SilverFile</strong><small>Kushim review console</small></span>
+    </a>
+    <nav>
+      <a href="#/" data-nav="queue" class="nav-link">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h9"/></svg>Review queue
+        <span class="nav-count" id="navCount"></span>
+      </a>
+      <button type="button" class="nav-link" id="navNew">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 4v12M4 10h12"/></svg>New session
+      </button>
+    </nav>
+    <div class="rail-foot">
+      <div class="reviewer">
+        <label for="reviewerName">Signed in as</label>
+        <input id="reviewerName" autocomplete="name" placeholder="Your name">
+      </div>
+      <p class="rail-note" id="modeNote"></p>
+      <p class="rail-note">Draft preparation aid. SilverFile never files a return or gives tax advice.</p>
+    </div>
+  </aside>
+
+  <main id="main" tabindex="-1"></main>
+</div>
+
+<div class="toast-stack" id="toasts" role="status" aria-live="polite"></div>
+
+<dialog id="newDialog" aria-labelledby="newTitle">
+  <form method="dialog" id="newForm">
+    <header>
+      <h2 id="newTitle">Start a session</h2>
+      <p>Run a prepared taxpayer case through the full system. The run stops whenever a person is needed.</p>
+    </header>
+    <div class="field">
+      <label for="fSession">Session name</label>
+      <input id="fSession" required pattern="[A-Za-z0-9_.\-]+" maxlength="64" placeholder="eval-case-2">
+      <small>Letters, numbers, dots, dashes and underscores.</small>
+    </div>
+    <fieldset class="field">
+      <legend>Taxpayer case</legend>
+      <div class="scenario-grid" id="scenarioGrid"></div>
+    </fieldset>
+    <fieldset class="field">
+      <legend>Documents to extract <span class="optional">optional</span></legend>
+      <div class="doc-grid" id="docGrid"></div>
+    </fieldset>
+    <div class="field-row">
+      <div class="field">
+        <label for="fSsn">Taxpayer SSN</label>
+        <input id="fSsn" value="900-12-3456" pattern="9\d{2}-?\d{2}-?\d{4}" inputmode="numeric">
+        <small>Test numbers only, 900 to 999.</small>
+      </div>
+      <div class="field">
+        <label for="fSpouseSsn">Spouse SSN <span class="optional">joint returns</span></label>
+        <input id="fSpouseSsn" placeholder="900-65-4321" pattern="9\d{2}-?\d{2}-?\d{4}" inputmode="numeric">
+      </div>
+    </div>
+    <p class="form-error" id="newError" role="alert"></p>
+    <footer>
+      <button type="button" class="btn ghost" id="newCancel">Cancel</button>
+      <button type="submit" class="btn primary" id="newSubmit">Start session</button>
+    </footer>
+  </form>
+</dialog>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
