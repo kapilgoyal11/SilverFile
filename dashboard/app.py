@@ -14,8 +14,9 @@ change any agent, the state schema or the graph.
 
 Environment:
     SILVERFILE_DB          SQLite checkpoint file (same default as run.py)
-    SILVERFILE_OFFLINE=1   read W-2 images from fixture answer keys (no API key)
-                           (automatic when ANTHROPIC_API_KEY is not set)
+    SILVERFILE_OFFLINE=1   use the saved answer key next to each W-2 image instead of
+                           reading the image (automatic without a real sk-ant- key)
+    SILVERFILE_DEMO=1      start the two eval cases if the database is empty
     PORT                   default 8000
 """
 
@@ -85,7 +86,11 @@ def _offline() -> bool:
     flag = os.environ.get("SILVERFILE_OFFLINE")
     if flag is not None:
         return flag.strip().lower() in ("1", "true", "yes")
-    return not os.environ.get("ANTHROPIC_API_KEY")
+    # Same rule as src.tools.w2_reader.default_reader: only a real Anthropic key
+    # (not the .env.example placeholder) turns on the vision model.
+    if os.environ.get("EXTRACTION_OFFLINE"):
+        return True
+    return not os.environ.get("ANTHROPIC_API_KEY", "").startswith("sk-ant-")
 
 
 class Console:
@@ -272,8 +277,29 @@ class StartBody(BaseModel):
     spouse_ssn: Optional[str] = None
 
 
+DEMO_SESSIONS = [
+    # The two evaluation cases from the brief: a clean run, and one that pauses for a human.
+    {"session_id": "eval-case-1", "scenario": "clean_single.json",
+     "documents": ["w2_1.png", "int_1.json"], "ssn": "900-12-3456", "spouse_ssn": None},
+    {"session_id": "eval-case-2", "scenario": "hitl_spouse_died.json",
+     "documents": [], "ssn": "900-12-3456", "spouse_ssn": "900-65-4321"},
+]
+
+
+def seed_demo(console: "Console") -> None:
+    """With SILVERFILE_DEMO=1, start the two eval cases when the database is empty,
+    so the queue opens with one finished draft and one session awaiting review."""
+    if os.environ.get("SILVERFILE_DEMO", "").strip().lower() not in ("1", "true", "yes"):
+        return
+    if console.thread_ids():
+        return
+    for case in DEMO_SESSIONS:
+        console.start(case["session_id"], case["scenario"], case["documents"], case["ssn"], case["spouse_ssn"])
+
+
 def create_app(db_path: Optional[str] = None) -> FastAPI:
     console = Console(db_path)
+    seed_demo(console)
     app = FastAPI(title="SilverFile Review Console", docs_url="/api/docs")
     app.state.console = console
 

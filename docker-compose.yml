@@ -1,0 +1,17 @@
+# docker compose up --build    then open http://localhost:8000
+# The port is bound to 127.0.0.1, so the dashboard is reachable only from this computer.
+# Sessions are kept in the "silverfile-data" volume between runs.
+# To use the live vision model for W-2 images, put ANTHROPIC_API_KEY in .env
+# (copy .env.example) and uncomment env_file below.
+services:
+  silverfile:
+    build: .
+    image: silverfile
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - silverfile-data:/data
+    # env_file: .env
+
+volumes:
+  silverfile-data:

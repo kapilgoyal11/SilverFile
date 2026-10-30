@@ -450,6 +450,8 @@ function humanReason(e) {
     financial_exploitation: "Possible financial exploitation", exploitation: "Possible financial exploitation", conflict: "Taxpayer answer conflicts with a document",
     loop_guard: "Agents were passing work back and forth", max_hops: "Session ran too many steps", reextract_requested: "A document needs re-uploading",
     unsure_answer: "Taxpayer wasn't sure of an answer",
+    undetermined_taxable_1099r: "1099-R taxable amount not determined", missing_info: "Information is missing",
+    exploitation_risk: "Possible financial exploitation",
   };
   return map[base] || base.replace(/_/g, " ").replace(/^\w/, (c) => c.toUpperCase());
 }
@@ -578,6 +580,6 @@ $("#navNew").addEventListener("click", openNew);
 
 api("/api/meta").then((m) => {
   app.meta = m;
-  $("#modeNote").textContent = m.offline ? "Offline mode: W-2 images are read from fixture answer keys." : "Live mode: W-2 images are read by the vision model.";
+  $("#modeNote").textContent = m.offline ? "Offline mode: W-2 values come from saved answer keys, not from reading the image." : "Live mode: W-2 images are read by the vision model.";
 }).catch(() => {});
 route();
