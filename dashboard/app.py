@@ -16,6 +16,7 @@ Environment:
     SILVERFILE_DB          SQLite checkpoint file (same default as run.py)
     SILVERFILE_OFFLINE=1   read W-2 images from fixture answer keys (no API key)
                            (automatic when ANTHROPIC_API_KEY is not set)
+    SILVERFILE_DEMO=1      start the two eval cases if the database is empty
     PORT                   default 8000
 """
 
@@ -272,8 +273,29 @@ class StartBody(BaseModel):
     spouse_ssn: Optional[str] = None
 
 
+DEMO_SESSIONS = [
+    # The two cases the brief's grading uses: a clean run, and one that pauses for a human.
+    {"session_id": "eval-case-1", "scenario": "clean_single.json",
+     "documents": ["w2_1.png", "int_1.json"], "ssn": "900-12-3456", "spouse_ssn": None},
+    {"session_id": "eval-case-2", "scenario": "hitl_spouse_died.json",
+     "documents": [], "ssn": "900-12-3456", "spouse_ssn": "900-65-4321"},
+]
+
+
+def seed_demo(console: "Console") -> None:
+    """With SILVERFILE_DEMO=1, start the two eval cases when the database is empty,
+    so a grader opens a queue with one finished draft and one session awaiting review."""
+    if os.environ.get("SILVERFILE_DEMO", "").strip().lower() not in ("1", "true", "yes"):
+        return
+    if console.thread_ids():
+        return
+    for case in DEMO_SESSIONS:
+        console.start(case["session_id"], case["scenario"], case["documents"], case["ssn"], case["spouse_ssn"])
+
+
 def create_app(db_path: Optional[str] = None) -> FastAPI:
     console = Console(db_path)
+    seed_demo(console)
     app = FastAPI(title="SilverFile Review Console", docs_url="/api/docs")
     app.state.console = console
 

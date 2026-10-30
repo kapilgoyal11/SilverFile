@@ -14,6 +14,7 @@ from fastapi.testclient import TestClient  # noqa: E402
 @pytest.fixture()
 def client(tmp_path, monkeypatch):
     monkeypatch.setenv("SILVERFILE_OFFLINE", "1")
+    monkeypatch.delenv("SILVERFILE_DEMO", raising=False)  # the Docker image turns demo mode on
     from dashboard.app import create_app
     return TestClient(create_app(str(tmp_path / "sessions.sqlite")))
 
@@ -75,3 +76,14 @@ def test_console_page_and_fixtures_are_served(client):
     assert client.get("/").status_code == 200
     fx = client.get("/api/fixtures").json()
     assert any(s["file"] == "clean_single.json" for s in fx["scenarios"])
+
+
+def test_demo_mode_seeds_the_two_eval_cases_once(tmp_path, monkeypatch):
+    monkeypatch.setenv("SILVERFILE_OFFLINE", "1")
+    monkeypatch.setenv("SILVERFILE_DEMO", "1")
+    from dashboard.app import create_app
+    db = str(tmp_path / "demo.sqlite")
+    status = {s["id"]: s["status"] for s in TestClient(create_app(db)).get("/api/sessions").json()}
+    assert status == {"eval-case-1": "draft_ready", "eval-case-2": "needs_review"}
+    # A second start on the same database adds nothing.
+    assert len(TestClient(create_app(db)).get("/api/sessions").json()) == 2
