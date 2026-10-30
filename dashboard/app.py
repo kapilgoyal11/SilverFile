@@ -274,7 +274,7 @@ class StartBody(BaseModel):
 
 
 DEMO_SESSIONS = [
-    # The two cases the brief's grading uses: a clean run, and one that pauses for a human.
+    # The two evaluation cases from the brief: a clean run, and one that pauses for a human.
     {"session_id": "eval-case-1", "scenario": "clean_single.json",
      "documents": ["w2_1.png", "int_1.json"], "ssn": "900-12-3456", "spouse_ssn": None},
     {"session_id": "eval-case-2", "scenario": "hitl_spouse_died.json",
@@ -284,7 +284,7 @@ DEMO_SESSIONS = [
 
 def seed_demo(console: "Console") -> None:
     """With SILVERFILE_DEMO=1, start the two eval cases when the database is empty,
-    so a grader opens a queue with one finished draft and one session awaiting review."""
+    so the queue opens with one finished draft and one session awaiting review."""
     if os.environ.get("SILVERFILE_DEMO", "").strip().lower() not in ("1", "true", "yes"):
         return
     if console.thread_ids():

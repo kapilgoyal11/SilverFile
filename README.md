@@ -1,5 +1,7 @@
 # SilverFile
 
+> **To run and evaluate this project, follow [HOW_TO_RUN.md](HOW_TO_RUN.md).** One command with Docker: `docker compose up --build`, then open http://localhost:8000.
+
 A LangGraph multi-agent system that helps prepare a **draft** Form 1040-SR (tax year 2025) for seniors, built for Kushim as a proof of concept. It collects information, reads a W-2 image, computes the derived lines, and hands a human a draft return plus an audit record showing where every dollar figure came from.
 
 SilverFile **never files** a return, **never gives tax advice**, and **never states a dollar amount it cannot source**. Anything out of scope, any advice request, and any sign of financial exploitation goes to a human.

@@ -1,4 +1,4 @@
-# How to run and grade SilverFile
+# How to run and evaluate SilverFile
 
 SilverFile is a LangGraph multi-agent system that prepares a **draft** Form
 1040-SR (tax year 2025) and records where every dollar came from. It never files
@@ -11,7 +11,7 @@ read the W-2 image instead, see [Using an API key](#using-an-api-key).
 
 - [Option A: Docker (recommended)](#option-a-docker-recommended)
 - [Option B: Python on your machine](#option-b-python-on-your-machine)
-- [Grading walkthrough](#grading-walkthrough)
+- [Evaluation walkthrough](#evaluation-walkthrough)
 - [Where everything is](#where-everything-is)
 - [Troubleshooting](#troubleshooting)
 
@@ -103,7 +103,7 @@ When a run pauses for a person, type `proceed <note>` or `stop <note>`.
 
 ---
 
-## Grading walkthrough
+## Evaluation walkthrough
 
 Each step matches part D of the rubric.
 
