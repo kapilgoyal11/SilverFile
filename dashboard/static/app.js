@@ -580,6 +580,6 @@ $("#navNew").addEventListener("click", openNew);
 
 api("/api/meta").then((m) => {
   app.meta = m;
-  $("#modeNote").textContent = m.offline ? "Offline mode: W-2 images are read from fixture answer keys." : "Live mode: W-2 images are read by the vision model.";
+  $("#modeNote").textContent = m.offline ? "Offline mode: W-2 values come from saved answer keys, not from reading the image." : "Live mode: W-2 images are read by the vision model.";
 }).catch(() => {});
 route();

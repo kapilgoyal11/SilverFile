@@ -2,7 +2,7 @@
 # the console runner (run.py) and the test suite.
 #
 #   docker build -t silverfile .
-#   docker run --rm -p 8000:8000 silverfile          # then open http://localhost:8000
+#   docker run --rm -p 127.0.0.1:8000:8000 silverfile   # then open http://localhost:8000
 #
 # Full instructions: HOW_TO_RUN.md
 

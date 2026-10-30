@@ -20,7 +20,8 @@ up in the same queue, and either can resume the other's paused sessions.
 | Variable | Default | Meaning |
 |---|---|---|
 | `SILVERFILE_DB` | `silverfile_sessions.sqlite` | checkpoint file |
-| `SILVERFILE_OFFLINE` | on when `ANTHROPIC_API_KEY` is unset | read W-2 images from fixture answer keys |
+| `SILVERFILE_OFFLINE` | on unless `ANTHROPIC_API_KEY` is a real `sk-ant-` key | use the saved answer key next to each W-2 image instead of reading the image |
+| `SILVERFILE_DEMO` | off (on in Docker) | start the two eval cases when the database is empty |
 | `HOST` / `PORT` | `127.0.0.1` / `8000` | use `HOST=0.0.0.0` inside Docker |
 
 ## What a reviewer can do

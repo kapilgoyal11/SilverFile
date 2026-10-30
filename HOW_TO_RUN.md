@@ -5,9 +5,12 @@ SilverFile is a LangGraph multi-agent system that prepares a **draft** Form
 a return and never gives tax advice. Kushim staff review held sessions in a web
 console (the dashboard).
 
-Everything below works **without an API key**. W-2 images are then read from
-their answer keys in `data/fixtures/` (offline mode). To have the vision model
-read the W-2 image instead, see [Using an API key](#using-an-api-key).
+Everything below works **without an API key**. Without one, the system runs in
+offline mode and does **not** read the W-2 images themselves. It uses the saved
+answer key next to each image (for example `data/fixtures/w2_1.reading.json`),
+which holds the values printed on that W-2. Reading a real W-2 image needs an
+Anthropic API key, so the vision model can read it. See
+[Using an API key](#using-an-api-key).
 
 - [Option A: Docker (recommended)](#option-a-docker-recommended)
 - [Option B: Python on your machine](#option-b-python-on-your-machine)
@@ -29,7 +32,10 @@ docker compose up --build
 ```
 
 The first build takes a few minutes. When the log says
-`Uvicorn running on http://0.0.0.0:8000`, open **http://localhost:8000**.
+`Uvicorn running on http://0.0.0.0:8000`, open **http://localhost:8000**. (The
+container listens on all of its own interfaces, but Docker publishes the port only
+on `127.0.0.1`, so the dashboard is reachable from this computer and not from
+the network.)
 
 The queue opens with the two evaluation cases already started:
 
@@ -62,7 +68,7 @@ they appear in the queue within a few seconds.
 
 ```bash
 docker build -t silverfile .
-docker run --rm -p 8000:8000 -v silverfile-data:/data silverfile
+docker run --rm -p 127.0.0.1:8000:8000 -v silverfile-data:/data silverfile
 docker run --rm -it -v silverfile-data:/data silverfile python run.py --session my-case
 docker run --rm silverfile python -m pytest -q
 ```
@@ -118,9 +124,12 @@ through 33, 25d and 25a to box 2 of the W-2. **Documents** shows the extracted f
 (SSNs masked). **Audit** shows the Review & Audit verdict and checks run, and
 **Activity** shows every hand-off the orchestrator made.
 
-**3. W-2 read from an image.** Lines 1z and 25a come from `data/fixtures/w2_1.png`. With
-no API key, the system reads that image's answer key. With a key it calls the
-vision model on the image itself (see below).
+**3. W-2 read from an image.** Lines 1z and 25a come from the W-2 image
+`data/fixtures/w2_1.png`. In offline mode the image is not read: the values come
+from its saved answer key, `data/fixtures/w2_1.reading.json`. To have the vision
+model read the image itself, set `ANTHROPIC_API_KEY` (see
+[Using an API key](#using-an-api-key)) and start a session that includes
+`w2_1.png`. The sidebar of the dashboard shows which mode is active.
 
 **4. HITL event (eval case 2).** Open `eval-case-2`. The **Review** tab shows the
 escalation: who raised it, the rule, and why. Enter a reviewer name and a note,
@@ -150,8 +159,10 @@ Copy `.env.example` to `.env` and set `ANTHROPIC_API_KEY`. Never commit `.env`.
 - Docker Compose: uncomment `env_file: .env` in `docker-compose.yml`.
 - Plain Docker: add `--env-file .env` to `docker run`.
 
-With a key present, W-2 images are read by the vision model. Set
-`SILVERFILE_OFFLINE=1` to force offline mode anyway.
+A real key starts with `sk-ant-`. With one present, W-2 images are read by the
+vision model; the placeholder value in `.env.example` does not count, so the system
+stays offline. To force offline mode with a key set, use `SILVERFILE_OFFLINE=1` for
+the dashboard or `--offline` for `run.py`.
 
 ---
 
@@ -177,7 +188,7 @@ With a key present, W-2 images are read by the vision model. Set
 
 | Problem | Fix |
 |---|---|
-| Port 8000 is already in use | Docker: change `"8000:8000"` to `"8001:8000"` in `docker-compose.yml` and open http://localhost:8001. Python: `PORT=8001 python -m dashboard`. |
+| Port 8000 is already in use | Docker: change `"127.0.0.1:8000:8000"` to `"127.0.0.1:8001:8000"` in `docker-compose.yml` and open http://localhost:8001. Python: `PORT=8001 python -m dashboard`. |
 | `docker: command not found`, or "Cannot connect to the Docker daemon" | Install Docker Desktop and start it, then try again. |
 | `python3 --version` shows 3.9 on a Mac | Install a newer Python (`brew install python@3.13`) and create the venv with `python3.13 -m venv .venv`. |
 | The queue is empty | Start sessions with **New session**, or delete `silverfile_sessions.sqlite` (Python) or run `docker compose down -v` (Docker) and start again with demo mode on. |

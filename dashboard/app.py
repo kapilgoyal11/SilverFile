@@ -14,8 +14,8 @@ change any agent, the state schema or the graph.
 
 Environment:
     SILVERFILE_DB          SQLite checkpoint file (same default as run.py)
-    SILVERFILE_OFFLINE=1   read W-2 images from fixture answer keys (no API key)
-                           (automatic when ANTHROPIC_API_KEY is not set)
+    SILVERFILE_OFFLINE=1   use the saved answer key next to each W-2 image instead of
+                           reading the image (automatic without a real sk-ant- key)
     SILVERFILE_DEMO=1      start the two eval cases if the database is empty
     PORT                   default 8000
 """
@@ -86,7 +86,11 @@ def _offline() -> bool:
     flag = os.environ.get("SILVERFILE_OFFLINE")
     if flag is not None:
         return flag.strip().lower() in ("1", "true", "yes")
-    return not os.environ.get("ANTHROPIC_API_KEY")
+    # Same rule as src.tools.w2_reader.default_reader: only a real Anthropic key
+    # (not the .env.example placeholder) turns on the vision model.
+    if os.environ.get("EXTRACTION_OFFLINE"):
+        return True
+    return not os.environ.get("ANTHROPIC_API_KEY", "").startswith("sk-ant-")
 
 
 class Console:
