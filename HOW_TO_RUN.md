@@ -182,6 +182,7 @@ the dashboard or `--offline` for `run.py`.
 | Context-window metrics | `docs/metrics.md`, `scripts/measure_context.py` |
 | Dashboard | `dashboard/` (see `dashboard/README.md`) |
 | Fixtures (W-2 images, forms, taxpayer cases) | `data/fixtures/` |
+| Demo video (9 min 40 s) | `demo/demo_video.mp4` |
 | Evaluation cases and their expected results | `demo/eval_case_1.md`, `demo/eval_case_2.md`, `evals/cases.json` |
 | Filled 1040-SR PDF | `dashboard/form_1040sr.py` (Download button on the Draft return tab) |
 | Tests | `tests/` |

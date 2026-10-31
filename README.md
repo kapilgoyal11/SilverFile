@@ -1,6 +1,8 @@
 # SilverFile
 
 > **To run and evaluate this project, follow [HOW_TO_RUN.md](HOW_TO_RUN.md).** One command with Docker: `docker compose up --build`, then open http://localhost:8000.
+>
+> **Demo video:** [`demo/demo_video.mp4`](demo/demo_video.mp4) (9 min 40 s). **Evaluation cases:** [`demo/eval_case_1.md`](demo/eval_case_1.md) (clean run) and [`demo/eval_case_2.md`](demo/eval_case_2.md) (human-in-the-loop event and how to resolve it).
 
 A LangGraph multi-agent system that helps prepare a **draft** Form 1040-SR (tax year 2025) for seniors, built for Kushim as a proof of concept. It collects information, reads the W-2 (from its image with an Anthropic API key, or from the image's saved answer key in offline mode), computes the derived lines, and hands a human a draft return plus an audit record showing where every dollar figure came from.
 
