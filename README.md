@@ -25,13 +25,24 @@ SilverFile **never files** a return, **never gives tax advice**, and **never sta
 
 ## Setup
 
-Tested on macOS with Python 3.13.7. Python 3.11 or newer should work but has not been tested.
-
 ```
 git clone https://github.com/kapilgoyal11/SilverFile.git
 cd SilverFile
-python3 -m venv .venv
-source .venv/bin/activate
+```
+
+You need **Python 3.11 or newer** (we tested on 3.13). The commands differ slightly by operating system:
+
+| Step | Mac or Linux | Windows (PowerShell or Command Prompt) |
+|---|---|---|
+| Check the Python version | `python3 --version` | `py --version` |
+| Create a virtual environment | `python3 -m venv .venv` | `py -m venv .venv` |
+| Turn it on | `source .venv/bin/activate` | `.venv\Scripts\activate` |
+
+If the version is older than 3.11 (a Mac's built-in `python3` is 3.9), install a newer Python from [python.org](https://www.python.org/downloads/) (on a Mac, `brew install python@3.13` also works). Then create the environment with that version: `python3.13 -m venv .venv` on Mac or Linux, or `py -3.13 -m venv .venv` on Windows.
+
+Once the environment is on, `python` means the right version on every system, so the remaining commands are the same everywhere:
+
+```
 python -m pip install -r requirements.txt -r dashboard/requirements.txt httpx
 ```
 
