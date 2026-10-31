@@ -77,22 +77,35 @@ docker run --rm silverfile python -m pytest -q
 
 ## Option B: Python on your machine
 
-Needs **Python 3.11 or newer** (tested on 3.13). On macOS the built-in
-`python3` is 3.9, so name the version explicitly, for example `python3.13`.
-
 ```bash
 git clone https://github.com/kapilgoyal11/SilverFile.git
 cd SilverFile
-python3.13 -m venv .venv
-source .venv/bin/activate              # Windows: .venv\Scripts\activate
-pip install -r requirements.txt -r dashboard/requirements.txt httpx
-python -m pytest -q                    # every test should pass
-SILVERFILE_DEMO=1 python -m dashboard  # open http://localhost:8000
 ```
 
-`SILVERFILE_DEMO=1` starts the two evaluation cases when the database is empty.
-Leave it off to start with an empty queue. On Windows PowerShell, run
-`$env:SILVERFILE_DEMO="1"` first, then `python -m dashboard`.
+You need **Python 3.11 or newer** (we tested on 3.13). The commands differ slightly by operating system:
+
+| Step | Mac or Linux | Windows (PowerShell or Command Prompt) |
+|---|---|---|
+| Check the Python version | `python3 --version` | `py --version` |
+| Create a virtual environment | `python3 -m venv .venv` | `py -m venv .venv` |
+| Turn it on | `source .venv/bin/activate` | `.venv\Scripts\activate` |
+
+If the version is older than 3.11 (a Mac's built-in `python3` is 3.9), install a newer Python from [python.org](https://www.python.org/downloads/) (on a Mac, `brew install python@3.13` also works). Then create the environment with that version: `python3.13 -m venv .venv` on Mac or Linux, or `py -3.13 -m venv .venv` on Windows.
+
+Once the environment is on, `python` means the right version on every system, so the remaining commands are the same everywhere:
+
+```bash
+python -m pip install -r requirements.txt -r dashboard/requirements.txt httpx
+python -m pytest -q                    # every test should pass
+```
+
+Start the review console with the two evaluation cases loaded:
+
+| Mac or Linux | Windows PowerShell | Windows Command Prompt |
+|---|---|---|
+| `SILVERFILE_DEMO=1 python -m dashboard` | `$env:SILVERFILE_DEMO="1"; python -m dashboard` | `set SILVERFILE_DEMO=1 && python -m dashboard` |
+
+Then open http://localhost:8000. Leave out `SILVERFILE_DEMO` to start with an empty queue.
 
 The command-line runner works the same way:
 
@@ -197,5 +210,5 @@ the dashboard or `--offline` for `run.py`.
 |---|---|
 | Port 8000 is already in use | Docker: change `"127.0.0.1:8000:8000"` to `"127.0.0.1:8001:8000"` in `docker-compose.yml` and open http://localhost:8001. Python: `PORT=8001 python -m dashboard`. |
 | `docker: command not found`, or "Cannot connect to the Docker daemon" | Install Docker Desktop and start it, then try again. |
-| `python3 --version` shows 3.9 on a Mac | Install a newer Python (`brew install python@3.13`) and create the venv with `python3.13 -m venv .venv`. |
+| Python is older than 3.11 | Install a newer Python from python.org (Mac: `brew install python@3.13`), then create the environment with `python3.13 -m venv .venv` (Mac or Linux) or `py -3.13 -m venv .venv` (Windows). |
 | The queue is empty | Start sessions with **New session**, or delete `silverfile_sessions.sqlite` (Python) or run `docker compose down -v` (Docker) and start again with demo mode on. |
