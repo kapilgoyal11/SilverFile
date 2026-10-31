@@ -101,3 +101,15 @@ def test_offline_mode_matches_the_extraction_reader(monkeypatch, key, offline):
     from src.tools.w2_reader import FixtureReader, default_reader
     assert _offline() is offline
     assert isinstance(default_reader(), FixtureReader) is offline
+
+
+def test_filled_1040sr_pdf_for_a_finished_draft(client):
+    start(client, "pdf", "clean_single.json", documents=["w2_1.png", "int_1.json"])
+    r = client.get("/api/sessions/pdf/form.pdf")
+    assert r.status_code == 200 and r.headers["content-type"] == "application/pdf"
+    assert r.content.startswith(b"%PDF") and len(r.content) > 2000
+
+
+def test_no_pdf_before_lines_are_computed(client):
+    start(client, "early", "hitl_spouse_died.json", spouse_ssn="900-65-4321")
+    assert client.get("/api/sessions/early/form.pdf").status_code == 409

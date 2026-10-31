@@ -24,6 +24,7 @@ const ICON = {
   flag: '<svg viewBox="0 0 20 20"><path d="M5 17V3m0 1h9l-2 3.5 2 3.5H5"/></svg>',
   check: '<svg viewBox="0 0 20 20"><path d="M4 10.5l4 4 8-9"/></svg>',
   chev: '<svg viewBox="0 0 12 12"><path d="M4 2l4 4-4 4"/></svg>',
+  download: '<svg viewBox="0 0 20 20"><path d="M10 3v10m-4-4 4 4 4-4M4 16h12"/></svg>',
   ledger: '<svg viewBox="0 0 48 48"><rect x="10" y="6" width="28" height="36" rx="3"/><path d="M16 15h16M16 21h16M16 27h10M16 33h7"/></svg>',
 };
 
@@ -242,7 +243,8 @@ function calloutHtml(s) {
       <button class="btn ghost" data-tab="review">See the question</button></div>`;
   }
   if (s.status === "draft_ready") {
-    return `<div class="callout ready"><p><strong>Draft ready for the volunteer preparer.</strong> Review and audit approved every line, and the release gate passed. Nothing has been filed.</p></div>`;
+    return `<div class="callout ready"><p><strong>Draft ready for the volunteer preparer.</strong> Review and audit approved every line, and the release gate passed. Nothing has been filed.</p>
+      <a class="btn primary" href="/api/sessions/${encodeURIComponent(s.id)}/form.pdf" target="_blank" rel="noopener">${ICON.download}Download filled 1040-SR</a></div>`;
   }
   if (s.status === "failed") {
     return `<div class="callout stopped"><p><strong>Session stopped by a reviewer.</strong> No draft will be released from this session.</p></div>`;
@@ -282,6 +284,7 @@ function renderReturn(body, selected) {
       <div class="form-title"><div class="form-no">Form<b>1040-SR</b></div>
         <h2>U.S. Income Tax Return for Seniors<small>Draft for review. Select any line to see where the amount came from.</small></h2>
         <div class="year">20<span>25</span></div></div>
+      <div class="form-actions"><a class="btn ghost" href="/api/sessions/${encodeURIComponent(s.id)}/form.pdf" target="_blank" rel="noopener">${ICON.download}Download filled 1040-SR (PDF)</a></div>
       ${sections}
     </div>
     <aside class="trace" id="trace" aria-live="polite"></aside></div>`;

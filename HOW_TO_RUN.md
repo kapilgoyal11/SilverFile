@@ -114,8 +114,11 @@ When a run pauses for a person, type `proceed <note>` or `stop <note>`.
 Each step matches part D of the rubric.
 
 **1. Clean run (eval case 1).** In the dashboard, open `eval-case-1`. It shows
-**Draft ready** and an expected refund of $1,650. The **Draft return** tab is the
-filled-in 1040-SR.
+**Draft ready** and an expected refund of $1,650. The **Draft return** tab shows the
+return line by line, and **Download filled 1040-SR (PDF)** produces the filled form,
+with a second page listing the source of every amount. From the command line:
+`python -m dashboard.form_1040sr eval-case-1` writes `traces/eval-case-1_1040sr.pdf`.
+Full details: `demo/eval_case_1.md`.
 
 **2. Provenance.** Click any line on the return. The panel on the right shows
 the formula, every input, and the document field or taxpayer answer it came
@@ -133,7 +136,8 @@ model read the image itself, set `ANTHROPIC_API_KEY` (see
 
 **4. HITL event (eval case 2).** Open `eval-case-2`. The **Review** tab shows the
 escalation: who raised it, the rule, and why. Enter a reviewer name and a note,
-then click **Resolve all**. The session continues and ends at **Draft ready**.
+then click **Resolve all**. The session continues and ends at **Draft ready**, and its
+filled 1040-SR can be downloaded the same way. Full details: `demo/eval_case_2.md`.
 **Stop session** ends it with no draft instead.
 
 **5. Your own data.** Click **New session** and pick any prepared case. The ones
@@ -178,6 +182,8 @@ the dashboard or `--offline` for `run.py`.
 | Context-window metrics | `docs/metrics.md`, `scripts/measure_context.py` |
 | Dashboard | `dashboard/` (see `dashboard/README.md`) |
 | Fixtures (W-2 images, forms, taxpayer cases) | `data/fixtures/` |
+| Evaluation cases and their expected results | `demo/eval_case_1.md`, `demo/eval_case_2.md`, `evals/cases.json` |
+| Filled 1040-SR PDF | `dashboard/form_1040sr.py` (Download button on the Draft return tab) |
 | Tests | `tests/` |
 | AI-use disclosure | `docs/AI_DISCLOSURE.md` |
 | Docker | `Dockerfile`, `docker-compose.yml` |

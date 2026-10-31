@@ -39,6 +39,8 @@ up in the same queue, and either can resume the other's paused sessions.
   taxpayer, the question is shown and staff can answer on their behalf.
 - **Audit, Documents, Activity**: the Review & Audit verdict and findings, the
   extracted documents (SSNs masked), and every hop the orchestrator made.
+- **Filled 1040-SR**: the Draft return tab has a **Download filled 1040-SR (PDF)** button
+  (or `python -m dashboard.form_1040sr <session_id>`). Page 2 lists the source of every amount.
 - **New session**: run any prepared case in `data/fixtures/eligibility/` with
   any fixture documents. Only 900-series test SSNs are accepted.
 
@@ -66,7 +68,7 @@ API: `GET /api/sessions`, `GET /api/sessions/{id}`,
 
 ## Tests
 
-`tests/test_dashboard.py` (7 tests, no API key) covers a clean run, resolving a
-HITL event end to end, resolving selected items, stopping a session, the test-SSN
-rule and the error cases. They are skipped when the dashboard extras are not
-installed, so the core suite is unaffected.
+`tests/test_dashboard.py` (13 tests, no API key) covers a clean run, resolving a HITL
+event end to end, resolving selected items, stopping a session, the test-SSN rule,
+offline-mode detection, demo mode, the filled 1040-SR PDF and the error cases. They are
+skipped when the dashboard extras are not installed, so the core suite is unaffected.
