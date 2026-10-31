@@ -1,0 +1,21 @@
+[
+  {
+    "id": "eval_case_1",
+    "description": "Clean run: single filer aged 65, one W-2 image and one 1099-INT. No human input needed.",
+    "intake": "data/fixtures/eligibility/clean_single.json",
+    "documents": ["data/fixtures/w2_1.png", "data/fixtures/int_1.json"],
+    "ssn": "900-12-3456",
+    "expected": {"status": "draft_ready", "lines": {"1z": 18500, "2b": 312, "9": 18812, "12e": 17750, "13b": 6000, "15": 0, "24": 0, "25d": 1650, "33": 1650, "34": 1650}},
+    "notes": "demo/eval_case_1.md"
+  },
+  {
+    "id": "eval_case_2",
+    "description": "HITL: married filing jointly in the year the spouse died. Eligibility escalates filing status (R2.3); a reviewer resolves it.",
+    "intake": "data/fixtures/eligibility/hitl_spouse_died.json",
+    "documents": [],
+    "ssn": "900-12-3456",
+    "spouse_ssn": "900-65-4321",
+    "expected": {"pauses_with": "filing_status_ambiguous:R2.3", "after_resolve": "draft_ready", "lines": {"6a": 24000, "12e": 34700, "13b": 12000, "34": 0, "37": 0}},
+    "resolve": "Dashboard Review tab: Resolve all. Command line: proceed <note>. See demo/eval_case_2.md."
+  }
+]

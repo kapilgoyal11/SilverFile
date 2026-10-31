@@ -41,7 +41,7 @@ except Exception:
     pass
 
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 from langgraph.types import Command
 from pydantic import BaseModel, Field
@@ -319,6 +319,19 @@ def create_app(db_path: Optional[str] = None) -> FastAPI:
         if d is None:
             raise HTTPException(404, "No such session")
         return d
+
+    @app.get("/api/sessions/{session_id}/form.pdf")
+    def form_pdf(session_id: str):
+        from dashboard.form_1040sr import build_pdf
+        snap = console.snapshot(session_id)
+        if snap is None:
+            raise HTTPException(404, "No such session")
+        try:
+            pdf = build_pdf(snap.values, LINE_LABELS)
+        except ValueError as exc:
+            raise HTTPException(409, str(exc))
+        return Response(pdf, media_type="application/pdf",
+                        headers={"Content-Disposition": f'inline; filename="{session_id}_1040-SR_draft.pdf"'})
 
     @app.post("/api/sessions/{session_id}/resolve")
     def resolve(session_id: str, body: ResolveBody):
