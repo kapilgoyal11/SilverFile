@@ -83,13 +83,13 @@ Dockerfile  docker-compose.yml  HOW_TO_RUN.md   container and run guide
 
 | Agent or area | Specialization | Owner |
 |---|---|---|
-| Orchestrator | Task division and management | David |
-| Intake | Agent memory | Karan |
-| Document Extraction | Inter-agent communication | Rodrigo |
-| Eligibility & Rules | Guardrails and ethics | Narain |
-| Computation | MLOps/DevOps | Kapil |
-| Review / Audit | Security | Abdullah |
-| Review console, Docker, run guide | HITL dashboard, deployment and documentation | Nishitha |
+| Orchestrator | Task division and management | David Reeves |
+| Intake | Agent memory | Karan Shah |
+| Document Extraction | Inter-agent communication | Rodrigo Gallegos |
+| Eligibility & Rules | Guardrails and ethics | Narain Karthik |
+| Computation | MLOps/DevOps | Kapil Goyal |
+| Review / Audit | Security | Abdullah Almamoon |
+| Review console, Docker, run guide | HITL dashboard, deployment and documentation | Nishitha Bodipati |
 
 ## Shared contracts
 
